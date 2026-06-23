@@ -1,4 +1,4 @@
-import { LandingBrandMark } from "@/app/components/landing/LandingBrandMark";
+import { LandingLogo } from "@/app/components/landing/LandingLogo";
 
 const NAV_LINKS = [
   { href: "#how-it-works", label: "How it works" },
@@ -11,8 +11,7 @@ export function LandingHeader() {
     <header className="landing-header">
       <div className="landing-header-inner">
         <a href="#" className="landing-logo" aria-label="Phrasewell home">
-          <LandingBrandMark size={28} />
-          <span className="font-heading">Phrasewell</span>
+          <LandingLogo height={30} />
         </a>
 
         <nav className="landing-nav" aria-label="Page sections">

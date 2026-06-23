@@ -1,7 +1,7 @@
 import { LandingHeader } from "@/app/components/landing/LandingHeader";
 import { DemoPhraseCard } from "@/app/components/landing/DemoPhraseCard";
 import { BetaForm } from "@/app/components/landing/BetaForm";
-import { LandingBrandMark } from "@/app/components/landing/LandingBrandMark";
+import { LandingLogo } from "@/app/components/landing/LandingLogo";
 
 const THEORY_CARDS = [
   "When your child is screaming",
@@ -214,8 +214,7 @@ export function LandingPage() {
           </p>
           <div className="landing-footer-bar">
             <a href="#" className="landing-logo landing-footer-logo" aria-label="Phrasewell home">
-              <LandingBrandMark size={24} />
-              <span className="font-heading">Phrasewell</span>
+              <LandingLogo height={26} />
             </a>
             <p className="landing-footer-tagline">
               Quick phrases for tough moments. Not therapy or a diagnosis.
