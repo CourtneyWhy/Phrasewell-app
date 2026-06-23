@@ -1,0 +1,109 @@
+Behavior Categories and Sub-Categories
+The app has 8 main categories of behaviors, each with 7–10 sub-categories (specific behaviors). These are the tiles parents tap after "I need help right now." The categories cover the most common trauma-related challenges in foster/adoptive parenting. Below is the full list:
+
+Food and eating
+Hoarding food in room
+Asking for food every 10 minutes
+Gorging then hiding wrappers
+Stealing food from pantry at night
+Refusing to eat what is served
+Throwing food when upset
+Gorging at meals then vomiting
+Hiding food under bed or in drawers
+
+Aggression and safety risks
+Hitting or kicking when angry
+Throwing objects in rage
+Biting when overwhelmed
+Destroying property
+Head banging on wall or floor
+Hurting pets or siblings
+
+Lying and dishonesty
+Saying "I didn’t do it" when obvious
+Rewriting history
+Lying about homework or chores
+Stealing praise or credit
+
+Stealing and taking things
+Taking sibling’s toy without asking
+Stealing money or small items
+Taking items from school or store
+Hoarding small objects
+
+Big feelings and meltdowns
+Complete sobbing meltdown
+Saying "I hate you" or "You are not my real mom"
+Running away or hiding in house
+Self-harm threats or head-banging
+Shutdown and refusing to speak
+
+Sensory and body struggles
+Socks, seams, or tags meltdown
+Refusing to brush teeth or hair
+Food texture refusal or gagging
+Loud noises or covering ears
+Refusing baths or showers
+
+Defiance and control
+Saying "no" to every request
+Deliberate slow-motion compliance
+Arguing every direction
+Running away from adult in public
+
+Nighttime, sleep and bedtime
+Getting out of bed repeatedly
+Nightmares and waking screaming
+Afraid of the dark
+Bed-wetting accidents
+Refusing to sleep alone
+
+
+Selection Process
+The app is designed for speed in a crisis — 3–4 taps to get help:
+
+Parent opens app → taps "I need help right now" on home screen.
+8 category tiles appear. Parent taps the one that matches the moment (e.g., Food and eating).
+List of 7–10 behaviors in that category shows up. Parent taps the closest match (e.g., Hoarding food in room).
+Detail screen opens with:
+Exact script (what to say word-for-word, adapted to child's age range)
+Regulation tool (quick calming action)
+Backup tool (if first doesn't work)
+
+If the script isn't working, tap "Give me a different one" → AI generates a fresh variation (unlimited, back-end query to AI model).
+Tap "Log how this went" → pre-fills category, behavior, child (from My Kids), and takes to form for notes/mood.
+
+Screen Layouts
+The app has 5 simple screens (mobile-first, clean, sage green/cream colors, large buttons):
+
+Home
+Big title: "Calm Parent"
+Subtitle: "Instant tools for hard moments"
+Disclaimer: "Trauma-informed tools from a certified Stephen Minister & foster-to-adopt mom"
+Main button: "I need help right now" (large, center)
+Secondary buttons: "My Journal", "My Kids"
+
+Categories
+8 large tiles in 2-column grid (with emojis, tappable)
+Back button to home
+
+Behavior Detail
+Behavior title at top
+Large text block: Exact script
+Bullet: Regulation tool
+Bullet: Backup tool
+Button: "Give me a different one" (AI refresh)
+Button: "Log how this went" (bottom)
+
+My Kids
+List of added children (cards with name/age)
+"+ Add Child" button → form: Name, Age dropdown (0-3, 4-7, etc.), Gender, Notes
+Tap a child to select for logging
+
+My Journal
+List of logs (cards with date/child/category)
+"+ New Log" button → form with pre-fills
+Tap a log → detail with "Copy Email for Caseworker" and "Copy Text for Caseworker" buttons
+
+
+Everything is private (local storage), no logins needed. 
