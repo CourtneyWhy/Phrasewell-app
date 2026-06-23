@@ -426,6 +426,26 @@ html {
   text-decoration: none;
 }
 
+.landing-logo-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.landing-logo-mark {
+  display: block;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.landing-wordmark {
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .landing-nav {
   display: none;
   align-items: center;
@@ -932,10 +952,6 @@ html {
     justify-content: space-between;
     text-align: left;
   }
-}
-
-.landing-footer-logo {
-  font-size: 1rem;
 }
 
 .landing-footer-tagline {

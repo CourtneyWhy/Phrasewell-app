@@ -214,7 +214,7 @@ export function LandingPage() {
           </p>
           <div className="landing-footer-bar">
             <a href="#" className="landing-logo landing-footer-logo" aria-label="Phrasewell home">
-              <LandingLogo height={26} />
+              <LandingLogo iconSize={34} compact />
             </a>
             <p className="landing-footer-tagline">
               Quick phrases for tough moments. Not therapy or a diagnosis.

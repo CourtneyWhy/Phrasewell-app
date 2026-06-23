@@ -1,17 +1,29 @@
-/** Official horizontal lockup — mark + Phrasewell wordmark. */
-export function LandingLogo({ height = 32 }: { height?: number }) {
+type LandingLogoProps = {
+  /** Icon height in px — vessel mark only, wordmark is live text. */
+  iconSize?: number;
+  /** Slightly smaller wordmark for footer. */
+  compact?: boolean;
+};
+
+/** Horizontal lockup: large vessel icon + Phrasewell wordmark as HTML text (Lora). */
+export function LandingLogo({ iconSize = 42, compact = false }: LandingLogoProps) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src="/brand/lockup.png"
-      alt="Phrasewell"
-      height={height}
-      style={{
-        display: "block",
-        height,
-        width: "auto",
-        flexShrink: 0,
-      }}
-    />
+    <span className="landing-logo-lockup">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/brand/mark.png"
+        alt=""
+        aria-hidden
+        className="landing-logo-mark"
+        height={iconSize}
+        width={iconSize}
+      />
+      <span
+        className="font-heading landing-wordmark"
+        style={{ fontSize: compact ? "1.125rem" : "1.375rem" }}
+      >
+        Phrasewell
+      </span>
+    </span>
   );
 }

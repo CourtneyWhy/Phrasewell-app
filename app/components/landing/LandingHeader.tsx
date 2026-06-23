@@ -11,7 +11,7 @@ export function LandingHeader() {
     <header className="landing-header">
       <div className="landing-header-inner">
         <a href="#" className="landing-logo" aria-label="Phrasewell home">
-          <LandingLogo height={30} />
+          <LandingLogo iconSize={48} />
         </a>
 
         <nav className="landing-nav" aria-label="Page sections">
