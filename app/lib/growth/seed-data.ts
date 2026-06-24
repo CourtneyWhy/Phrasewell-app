@@ -1,6 +1,7 @@
 import { BLOG_TITLES, BEHAVIOR_CATEGORIES, CREATOR_PITCH } from "@/app/lib/growth/templates";
 import { LAUNCH_WEEK_PLAN } from "@/app/lib/growth/launch-phases";
 import { getEnhancedDailyTasks } from "@/app/lib/growth/daily-playbooks";
+import { enrichTask } from "@/app/lib/growth/task-guides";
 
 const PITCH = CREATOR_PITCH;
 
@@ -270,7 +271,7 @@ export function generateDailyTasks(fromDate = "2026-06-23", toDate = "2026-07-28
 
     getEnhancedDailyTasks(task_date).forEach((t) => weekday.push(t));
 
-    weekday.forEach((t) => tasks.push({ ...t, task_date, status: "not_started" }));
+    weekday.forEach((t) => tasks.push({ ...enrichTask(t), task_date, status: "not_started" }));
   }
 
   return tasks;
@@ -285,4 +286,4 @@ export const TODAY_CHECKLIST = [
   { task_title: "Contact 2 creators or group admins", task_type: "outreach", platform: "All", priority: "medium" },
   { task_title: "Log daily metrics", task_type: "metrics", platform: "Dashboard", priority: "high" },
   { task_title: "Log prior-day revenue", task_type: "revenue", platform: "Stripe", priority: "medium" },
-];
+].map((t) => enrichTask(t));

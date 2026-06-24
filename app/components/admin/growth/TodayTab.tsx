@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { growthFetch } from "@/app/lib/growth/client";
 import type { DailyPlaybook } from "@/app/lib/growth/daily-playbooks";
+import { getTaskGuide } from "@/app/lib/growth/task-guides";
 import type { GrowthDailyTask, TaskStatus } from "@/app/lib/growth/types";
 import { BigCheckbox, EmptyState } from "./shared";
 
@@ -22,6 +23,12 @@ type TodayTabProps = {
   onUpdateTask: (task: GrowthDailyTask, fields: Partial<GrowthDailyTask>) => void;
   onGoToTab: (tabId: string) => void;
 };
+
+function tabFromLink(link?: string | null) {
+  if (!link) return null;
+  const m = link.match(/tab=([a-z-]+)/);
+  return m?.[1] ?? null;
+}
 
 export function TodayTab({
   todayIso,
@@ -66,25 +73,20 @@ export function TodayTab({
     } catch (e) {
       setResult({
         type: "error",
-        text: e instanceof Error ? e.message : "Something went wrong. Check Supabase migration 004 is run.",
+        text: e instanceof Error ? e.message : "Something went wrong.",
       });
     } finally {
       setLoading(null);
     }
   }
 
-  const tabFromLink = (link?: string | null) => {
-    if (!link) return null;
-    const m = link.match(/tab=([a-z-]+)/);
-    return m?.[1] ?? null;
-  };
-
   return (
     <section>
       <div className="growth-card growth-card-muted">
-        <h2>Today&apos;s playbook — what to update and where</h2>
+        <h2>Start here</h2>
         <p className="growth-muted">
-          Buttons add tasks to your checklist below (scroll down after clicking). Klaviyo schedule spreads 7 flows across 7 days — only today&apos;s flow appears in today&apos;s checklist.
+          Generate tasks, then work top to bottom. Each task has a big button to the right tab + numbered steps.
+          Anyone helping you can follow the steps without asking questions.
         </p>
         <div className="growth-playbook-actions">
           <button
@@ -117,7 +119,7 @@ export function TodayTab({
               )
             }
           >
-            {loading === "regenerate" ? "Working…" : "Regenerate Today's Tasks"}
+            {loading === "regenerate" ? "Working…" : "Regenerate (fresh steps)"}
           </button>
           <button
             type="button"
@@ -135,33 +137,15 @@ export function TodayTab({
           >
             {loading === "klaviyo" ? "Working…" : "Schedule Klaviyo (7 days)"}
           </button>
-          <button
-            type="button"
-            className="growth-btn growth-btn-secondary"
-            disabled={!!loading}
-            onClick={() =>
-              runAction("klaviyo-regen", () =>
-                growthFetch("/api/admin/growth/generate-tasks", {
-                  method: "PUT",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ regenerate: true }),
-                }),
-              )
-            }
-          >
-            {loading === "klaviyo-regen" ? "Working…" : "Regenerate Klaviyo schedule"}
-          </button>
         </div>
-
         {result ? (
           <div className={`growth-action-result growth-action-result-${result.type}`} role="status">
             {result.text}
           </div>
         ) : null}
-
         {klaviyoSchedule.length > 0 ? (
           <div className="growth-klaviyo-schedule">
-            <strong>7-day Klaviyo build schedule:</strong>
+            <strong>7-day Klaviyo schedule:</strong>
             <ol>
               {klaviyoSchedule.map((s) => (
                 <li key={s.date}>
@@ -173,92 +157,101 @@ export function TodayTab({
         ) : null}
       </div>
 
-      {playbooks.map((pb) => (
-        <div key={pb.id} className="growth-card">
-          <div className="growth-card-head">
-            <h3>{pb.title}</h3>
-            <button
-              type="button"
-              className="growth-btn growth-btn-sm growth-btn-secondary"
-              onClick={() => {
-                const map: Record<string, string> = {
-                  "Email Marketing": "email",
-                  Communities: "communities",
-                  "Content Engine": "content-engine",
-                  "Beta Feedback": "feedback",
-                  Creators: "creators",
-                  "Launch Calendar": "launch",
-                  Metrics: "metrics",
-                };
-                onGoToTab(map[pb.dashboardTab] ?? "email");
-              }}
-            >
-              Open {pb.dashboardTab}
-            </button>
-          </div>
-          {pb.klaviyoLocation ? (
-            <p className="growth-muted">
-              <strong>Klaviyo:</strong> {pb.klaviyoLocation}
-            </p>
-          ) : null}
-          <ol className="growth-playbook-steps">
-            {pb.steps.map((s) => (
-              <li key={s.step}>
-                <strong>[{s.where}]</strong> {s.action}
-              </li>
-            ))}
-          </ol>
-        </div>
-      ))}
-
       <div className="growth-card" ref={checklistRef}>
         <h2>Today&apos;s checklist {tasks.length > 0 ? `(${tasks.length})` : ""}</h2>
+        <p className="growth-muted">Work top to bottom. Each task shows steps + a button to the tab with templates and lists.</p>
+
         {tasks.length === 0 ? (
           <EmptyState
-            title="No tasks for today"
-            body="Click Generate Today's Tasks above. The list will appear here with checkboxes."
+            title="No tasks yet"
+            body={'Click "Generate Today\'s Tasks" above.'}
           />
         ) : (
-          <ul className="growth-task-list">
-            {tasks.map((task) => (
-              <li key={task.id} className="growth-task-row">
-                <BigCheckbox
-                  checked={task.status === "done"}
-                  label={task.task_title}
-                  onChange={(done) =>
-                    onUpdateTask(task, { status: done ? "done" : "not_started" })
-                  }
-                />
-                <div className="growth-task-meta">
-                  {task.platform ? <span className="growth-tag">{task.platform}</span> : null}
-                  {task.task_type ? <span className="growth-tag">{task.task_type}</span> : null}
-                  {tabFromLink(task.link) ? (
+          <ul className="growth-guided-task-list">
+            {tasks.map((task) => {
+              const guide = getTaskGuide(task);
+              const tabId = tabFromLink(task.link) ?? guide.tabId;
+
+              return (
+                <li key={task.id} className={`growth-guided-task${task.status === "done" ? " growth-guided-task-done" : ""}`}>
+                  <div className="growth-guided-task-head">
+                    <BigCheckbox
+                      checked={task.status === "done"}
+                      label=""
+                      onChange={(done) =>
+                        onUpdateTask(task, { status: done ? "done" : "not_started" })
+                      }
+                    />
+                    <div className="growth-guided-task-title">
+                      <span>{task.task_title}</span>
+                      <span className="growth-guided-task-meta">
+                        ~{guide.minutes} min
+                      </span>
+                    </div>
                     <button
                       type="button"
-                      className="growth-btn growth-btn-sm growth-btn-secondary"
-                      onClick={() => onGoToTab(tabFromLink(task.link)!)}
+                      className="growth-btn growth-btn-primary growth-btn-sm growth-guided-open-tab"
+                      onClick={() => onGoToTab(tabId)}
                     >
-                      Go to tab
+                      Open {guide.tabLabel} →
                     </button>
-                  ) : null}
-                  <select
-                    value={task.status}
-                    onChange={(e) => onUpdateTask(task, { status: e.target.value as TaskStatus })}
-                    aria-label="Task status"
-                  >
-                    {TASK_STATUSES.map((s) => (
-                      <option key={s.value} value={s.value}>
-                        {s.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                {task.notes ? <pre className="growth-task-steps">{task.notes}</pre> : null}
-              </li>
-            ))}
+                  </div>
+
+                  <div className="growth-guided-task-body">
+                    <p className="growth-guided-done-when">
+                      <strong>Done when:</strong> {guide.doneWhen}
+                    </p>
+                    <ol className="growth-guided-steps">
+                      {guide.steps.map((step, i) => (
+                        <li key={i}>{step}</li>
+                      ))}
+                    </ol>
+                    {guide.tip ? (
+                      <p className="growth-guided-tip">💡 {guide.tip}</p>
+                    ) : null}
+                    {task.notes && task.task_type === "klaviyo-setup" ? (
+                      <details className="growth-guided-extra">
+                        <summary>Klaviyo technical steps</summary>
+                        <pre>{task.notes}</pre>
+                      </details>
+                    ) : null}
+                    <select
+                      className="growth-guided-status"
+                      value={task.status}
+                      onChange={(e) => onUpdateTask(task, { status: e.target.value as TaskStatus })}
+                      aria-label="Task status"
+                    >
+                      {TASK_STATUSES.map((s) => (
+                        <option key={s.value} value={s.value}>
+                          {s.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
+
+      {playbooks.length > 0 ? (
+        <details className="growth-card">
+          <summary className="growth-weekday-playbook-summary">Optional: today&apos;s weekday focus</summary>
+          {playbooks.map((pb) => (
+            <div key={pb.id} className="growth-weekday-playbook">
+              <h3>{pb.title}</h3>
+              <ol className="growth-playbook-steps">
+                {pb.steps.map((s) => (
+                  <li key={s.step}>
+                    <strong>[{s.where}]</strong> {s.action}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))}
+        </details>
+      ) : null}
     </section>
   );
 }

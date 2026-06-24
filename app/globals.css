@@ -1663,6 +1663,127 @@ html {
   line-height: 1.6;
 }
 
+.growth-guided-task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.growth-guided-task {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  background: #fff;
+}
+
+.growth-guided-task-done {
+  opacity: 0.65;
+  background: #faf9f7;
+}
+
+.growth-guided-task-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.growth-guided-task-title {
+  flex: 1;
+  min-width: 160px;
+  text-align: left;
+  padding: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.growth-guided-task-meta {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.growth-guided-open-tab {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.growth-guided-task-body {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.growth-guided-steps {
+  margin: 10px 0;
+  padding-left: 22px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.growth-guided-steps li {
+  margin-bottom: 8px;
+}
+
+.growth-guided-done-when {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.growth-guided-tip {
+  margin: 10px 0 0;
+  font-size: 13px;
+  background: var(--accent-soft);
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+.growth-guided-preview {
+  margin: 8px 0 0 40px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.growth-guided-status {
+  margin-top: 10px;
+  height: 36px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.growth-guided-extra {
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.growth-guided-extra pre {
+  white-space: pre-wrap;
+  font-size: 12px;
+  max-height: 160px;
+  overflow: auto;
+}
+
+.growth-weekday-playbook-summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 4px 0;
+}
+
+.growth-weekday-playbook {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
 
 .growth-playbook-steps {
   margin: 12px 0 0;

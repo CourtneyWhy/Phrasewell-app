@@ -1,5 +1,6 @@
 import { FLOWS } from "@/app/lib/growth/email-data";
 import { getPhaseForDate } from "@/app/lib/growth/launch-phases";
+import { enrichTask } from "@/app/lib/growth/task-guides";
 
 export type PlaybookStep = {
   step: number;
@@ -261,7 +262,7 @@ export function getKlaviyoBacklogTasks(startDate: string): Array<TaskSeed & { ta
     });
   });
 
-  return tasks;
+  return tasks.map((t) => enrichTask(t));
 }
 
 function tabLink(tabLabel: string): string {
@@ -336,5 +337,5 @@ export function getEnhancedDailyTasks(isoDate: string, opts?: {
     });
   }
 
-  return tasks;
+  return tasks.map((t) => enrichTask(t));
 }
