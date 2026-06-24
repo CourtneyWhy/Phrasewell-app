@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { LandingLogo } from "@/app/components/landing/LandingLogo";
 
 export default function BetaLoginForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/app";
 
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +30,7 @@ export default function BetaLoginForm() {
         return;
       }
 
-      router.push(next.startsWith("/app") ? next : "/app");
+      router.push("/app");
       router.refresh();
     } catch {
       setError("Could not sign in. Try again.");
