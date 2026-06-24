@@ -214,62 +214,6 @@ export function GrowthDashboard() {
     }
   }
 
-  async function generateTodayTasks() {
-    setMessage(null);
-    try {
-      const res = await growthFetch<{ ok?: boolean; message?: string; count?: number }>(
-        "/api/admin/growth/generate-tasks",
-        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) },
-      );
-      setMessage(res.message ?? `Created ${res.count ?? 0} tasks for today.`);
-      loadStats();
-    } catch (e) {
-      setMessage(e instanceof Error ? e.message : "Failed");
-    }
-  }
-
-  async function regenerateTodayTasks() {
-    setMessage(null);
-    try {
-      const res = await growthFetch<{ ok?: boolean; count?: number }>(
-        "/api/admin/growth/generate-tasks",
-        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ regenerate: true }) },
-      );
-      setMessage(`Regenerated ${res.count ?? 0} tasks for today.`);
-      loadStats();
-    } catch (e) {
-      setMessage(e instanceof Error ? e.message : "Failed");
-    }
-  }
-
-  async function generateKlaviyoBacklog() {
-    setMessage(null);
-    try {
-      const res = await growthFetch<{ ok?: boolean; message?: string; count?: number; error?: string }>(
-        "/api/admin/growth/generate-tasks",
-        { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) },
-      );
-      setMessage(res.message ?? `Scheduled ${res.count ?? 0} Klaviyo flow setup days.`);
-      loadStats();
-    } catch (e) {
-      setMessage(e instanceof Error ? e.message : "Failed");
-    }
-  }
-
-  async function regenerateKlaviyoBacklog() {
-    setMessage(null);
-    try {
-      const res = await growthFetch<{ ok?: boolean; message?: string; count?: number }>(
-        "/api/admin/growth/generate-tasks",
-        { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ regenerate: true }) },
-      );
-      setMessage(res.message ?? `Regenerated ${res.count ?? 0} Klaviyo setup days from today.`);
-      loadStats();
-    } catch (e) {
-      setMessage(e instanceof Error ? e.message : "Failed");
-    }
-  }
-
   async function updateTask(task: GrowthDailyTask, fields: Partial<GrowthDailyTask>) {
     await patchRow("daily-tasks", task.id, fields);
     loadStats();
@@ -422,10 +366,7 @@ export function GrowthDashboard() {
             <TodayTab
               todayIso={todayIso}
               tasks={stats?.todayTasks ?? []}
-              onGenerateTasks={generateTodayTasks}
-              onRegenerateTasks={regenerateTodayTasks}
-              onGenerateKlaviyoBacklog={generateKlaviyoBacklog}
-              onRegenerateKlaviyoBacklog={regenerateKlaviyoBacklog}
+              onRefresh={loadStats}
               onUpdateTask={updateTask}
               onGoToTab={(id) => goToTab(id as TabId)}
             />

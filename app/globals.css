@@ -1617,6 +1617,53 @@ html {
   margin-top: 12px;
 }
 
+.growth-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.growth-btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.growth-action-result {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.growth-action-result-success {
+  background: #ecfdf3;
+  border: 1px solid #abefc6;
+  color: #067647;
+}
+
+.growth-action-result-warn {
+  background: #fffaeb;
+  border: 1px solid #fedf89;
+  color: #b54708;
+}
+
+.growth-action-result-error {
+  background: #fef3f2;
+  border: 1px solid #fecdca;
+  color: #b42318;
+}
+
+.growth-klaviyo-schedule {
+  margin-top: 14px;
+  font-size: 13px;
+}
+
+.growth-klaviyo-schedule ol {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  line-height: 1.6;
+}
+
+
 .growth-playbook-steps {
   margin: 12px 0 0;
   padding-left: 20px;

@@ -27,8 +27,6 @@ async function getNextPipelineBehavior(db: ReturnType<typeof growthDb>) {
   return data;
 }
 
-import { resolveEmailBody } from "@/app/lib/growth/email-klaviyo-copy";
-
 async function buildTaskRows(db: ReturnType<typeof growthDb>, today: string) {
   const [nextFlow, nextBehavior] = await Promise.all([
     getNextKlaviyoFlow(db),
@@ -69,7 +67,11 @@ export async function POST(request: Request) {
     .eq("task_date", today);
 
   if (existing && existing.length > 0 && !regenerate) {
-    return NextResponse.json({ message: "Tasks already exist for today. Use Regenerate to replace them.", count: existing.length });
+    return NextResponse.json({
+      ok: false,
+      message: "Tasks already exist for today. Click Regenerate Today's Tasks to replace them.",
+      count: existing.length,
+    });
   }
 
   if (regenerate && existing && existing.length > 0) {
@@ -88,6 +90,9 @@ export async function POST(request: Request) {
     ok: true,
     count: rows.length,
     regenerated: regenerate,
+    message: regenerate
+      ? `Replaced today's list with ${rows.length} fresh tasks. Scroll down to Today's checklist.`
+      : `Added ${rows.length} tasks to today's checklist. Scroll down to see them.`,
   });
 }
 
@@ -140,10 +145,17 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  const dates = backlog.map((t) => t.task_date);
+  const todayTask = backlog.find((t) => t.task_date === today);
+
   return NextResponse.json({
     ok: true,
     count: backlog.length,
     regenerated: regenerate,
-    message: "One Klaviyo flow per day scheduled.",
+    startDate: dates[0],
+    endDate: dates[dates.length - 1],
+    todayTaskTitle: todayTask?.task_title ?? null,
+    schedule: backlog.map((t) => ({ date: t.task_date, title: t.task_title })),
+    message: `Scheduled ${backlog.length} Klaviyo flow builds (${dates[0]} → ${dates[dates.length - 1]}). Today: "${todayTask?.task_title ?? "see checklist"}". One flow per day for 7 days.`,
   });
 }
