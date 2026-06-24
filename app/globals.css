@@ -1610,3 +1610,47 @@ html {
   gap: 8px;
 }
 
+.growth-playbook-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.growth-playbook-steps {
+  margin: 12px 0 0;
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  list-style: decimal;
+}
+
+.growth-playbook-steps li {
+  margin-bottom: 8px;
+}
+
+.growth-task-steps {
+  margin: 8px 0 0 40px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+  white-space: pre-wrap;
+  background: #faf9f7;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  max-height: 200px;
+  overflow: auto;
+}
+
+.growth-email-body-preview {
+  white-space: pre-wrap;
+  font-size: 13px;
+  background: #faf9f7;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  max-height: 240px;
+  overflow: auto;
+}
+

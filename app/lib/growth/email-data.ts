@@ -1,3 +1,5 @@
+import { resolveEmailBody } from "@/app/lib/growth/email-klaviyo-copy";
+
 export const LIFECYCLE_FUNNEL = [
   { id: "visitor", label: "Website Visitor", stage: 0 },
   { id: "waitlist", label: "Waitlist", stage: 1 },
@@ -468,8 +470,9 @@ export function getSeedFlowEmails() {
       flow_slug: f.slug,
       step_number: i + 1,
       ...e,
+      body_outline: resolveEmailBody(f.slug, i + 1, e.body_outline, e.cta),
       status: "idea",
-      notes: null,
+      notes: `Graphic: ${e.graphic_recommendation}`,
     })),
   );
 }
@@ -483,12 +486,12 @@ export function getSeedEmailLibrary() {
       goal: e.goal,
       cta: e.cta,
       graphic_recommendation: e.graphic_recommendation,
-      body_outline: e.body_outline,
+      body_outline: resolveEmailBody(f.slug, i + 1, e.body_outline, e.cta),
       status: "idea",
       campaign: f.name,
       flow_slug: f.slug,
       lifecycle_stage: f.lifecycle_stage,
-      notes: null,
+      notes: `Graphic: ${e.graphic_recommendation}`,
     })),
   );
 }

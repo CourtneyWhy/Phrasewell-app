@@ -25,7 +25,6 @@ import type {
   TaskStatus,
 } from "@/app/lib/growth/types";
 import {
-  BigCheckbox,
   buildQuery,
   CopyBtn,
   EmptyState,
@@ -38,6 +37,7 @@ import {
 } from "./shared";
 import { EmailMarketingTab } from "./EmailMarketingTab";
 import { ContentEngineTab } from "./ContentEngineTab";
+import { TodayTab } from "./TodayTab";
 
 const TABS = [
   { id: "today", label: "Today" },
@@ -137,6 +137,17 @@ export function GrowthDashboard() {
   const todayIso = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const launchDays = useMemo(() => getLaunchCalendarDays(todayIso), [todayIso]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const t = params.get("tab");
+    if (t && TABS.some((x) => x.id === t)) setTab(t as TabId);
+  }, []);
+
+  function goToTab(tabId: TabId) {
+    setTab(tabId);
+    window.history.replaceState(null, "", `/admin/growth?tab=${tabId}`);
+  }
+
   const loadStats = useCallback(async () => {
     try {
       const data = await growthFetch<Stats>("/api/admin/growth/stats");
@@ -208,9 +219,51 @@ export function GrowthDashboard() {
     try {
       const res = await growthFetch<{ ok?: boolean; message?: string; count?: number }>(
         "/api/admin/growth/generate-tasks",
-        { method: "POST" },
+        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) },
       );
       setMessage(res.message ?? `Created ${res.count ?? 0} tasks for today.`);
+      loadStats();
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : "Failed");
+    }
+  }
+
+  async function regenerateTodayTasks() {
+    setMessage(null);
+    try {
+      const res = await growthFetch<{ ok?: boolean; count?: number }>(
+        "/api/admin/growth/generate-tasks",
+        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ regenerate: true }) },
+      );
+      setMessage(`Regenerated ${res.count ?? 0} tasks for today.`);
+      loadStats();
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : "Failed");
+    }
+  }
+
+  async function generateKlaviyoBacklog() {
+    setMessage(null);
+    try {
+      const res = await growthFetch<{ ok?: boolean; message?: string; count?: number; error?: string }>(
+        "/api/admin/growth/generate-tasks",
+        { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) },
+      );
+      setMessage(res.message ?? `Scheduled ${res.count ?? 0} Klaviyo flow setup days.`);
+      loadStats();
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : "Failed");
+    }
+  }
+
+  async function regenerateKlaviyoBacklog() {
+    setMessage(null);
+    try {
+      const res = await growthFetch<{ ok?: boolean; message?: string; count?: number }>(
+        "/api/admin/growth/generate-tasks",
+        { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ regenerate: true }) },
+      );
+      setMessage(res.message ?? `Regenerated ${res.count ?? 0} Klaviyo setup days from today.`);
       loadStats();
     } catch (e) {
       setMessage(e instanceof Error ? e.message : "Failed");
@@ -348,7 +401,7 @@ export function GrowthDashboard() {
             key={t.id}
             type="button"
             className={`growth-tab${tab === t.id ? " growth-tab-active" : ""}`}
-            onClick={() => setTab(t.id)}
+            onClick={() => goToTab(t.id)}
           >
             {t.label}
           </button>
@@ -357,7 +410,7 @@ export function GrowthDashboard() {
 
       <main className="growth-main">
         {tab === "today" && (
-          <section>
+          <>
             <div className="growth-stat-grid">
               <StatCard label="Today" value={fmtDate(stats?.today ?? todayIso)} />
               <StatCard label="Days to launch" value={stats?.daysUntilLaunch ?? "—"} sub={LAUNCH_DATE} />
@@ -366,51 +419,17 @@ export function GrowthDashboard() {
               <StatCard label="Feedback" value={stats?.feedbackTotal ?? 0} sub={`${stats?.thumbsUpPct ?? 0}% thumbs up`} />
               <StatCard label="LTD revenue" value={fmtMoney(stats?.ltdRevenueTotal ?? 0)} />
             </div>
-
-            <div className="growth-card">
-              <div className="growth-card-head">
-                <h2>Today&apos;s checklist</h2>
-                <button type="button" className="growth-btn growth-btn-primary" onClick={generateTodayTasks}>
-                  Generate Today&apos;s Tasks
-                </button>
-              </div>
-              {(stats?.todayTasks ?? []).length === 0 ? (
-                <EmptyState
-                  title="No tasks for today"
-                  body='Click "Generate Today&apos;s Tasks" or run "Load seed data" first (after running the Supabase migration).'
-                />
-              ) : (
-                <ul className="growth-task-list">
-                  {(stats?.todayTasks ?? []).map((task) => (
-                    <li key={task.id} className="growth-task-row">
-                      <BigCheckbox
-                        checked={task.status === "done"}
-                        label={task.task_title}
-                        onChange={(done) =>
-                          updateTask(task, { status: done ? "done" : "not_started" })
-                        }
-                      />
-                      <div className="growth-task-meta">
-                        {task.platform ? <span className="growth-tag">{task.platform}</span> : null}
-                        <select
-                          value={task.status}
-                          onChange={(e) => updateTask(task, { status: e.target.value as TaskStatus })}
-                          aria-label="Task status"
-                        >
-                          {TASK_STATUSES.map((s) => (
-                            <option key={s.value} value={s.value}>
-                              {s.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      {task.notes ? <p className="growth-notes">{task.notes}</p> : null}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </section>
+            <TodayTab
+              todayIso={todayIso}
+              tasks={stats?.todayTasks ?? []}
+              onGenerateTasks={generateTodayTasks}
+              onRegenerateTasks={regenerateTodayTasks}
+              onGenerateKlaviyoBacklog={generateKlaviyoBacklog}
+              onRegenerateKlaviyoBacklog={regenerateKlaviyoBacklog}
+              onUpdateTask={updateTask}
+              onGoToTab={(id) => goToTab(id as TabId)}
+            />
+          </>
         )}
 
         {tab === "launch" && (

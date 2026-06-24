@@ -9,6 +9,7 @@ import {
   FRIDAY_NEWSLETTER_IDEAS,
 } from "@/app/lib/growth/email-data";
 import { AGENT_PROMPTS } from "@/app/lib/growth/agent-prompts";
+import { formatKlaviyoPasteBlock } from "@/app/lib/growth/email-klaviyo-copy";
 import type {
   GrowthEmailAnalyticsDaily,
   GrowthEmailCampaign,
@@ -129,6 +130,23 @@ export function EmailMarketingTab({ onMessage }: { onMessage: (msg: string) => v
     }
   }
 
+  async function refreshEmailCopy() {
+    try {
+      const res = await growthFetch<{ ok: boolean; updated: number }>(
+        "/api/admin/growth/refresh-email-copy",
+        { method: "POST" },
+      );
+      onMessage(`Refreshed ${res.updated} emails with full copy + graphic notes.`);
+      if (sub === "Email Library") loadTable("email-library", setLibrary as (r: never[]) => void);
+      if (sub === "Flows") {
+        loadTable("email-flows", setFlows as (r: never[]) => void);
+        loadTable("email-flow-emails", setFlowEmails as (r: never[]) => void);
+      }
+    } catch (e) {
+      onMessage(e instanceof Error ? e.message : "Refresh failed — load seed data first.");
+    }
+  }
+
   async function saveAnalytics() {
     const body = { ...analyticsForm, metric_date: analyticsForm.metric_date ?? new Date().toISOString().slice(0, 10) };
     const existing = analytics.find((a) => a.metric_date === body.metric_date);
@@ -159,6 +177,9 @@ export function EmailMarketingTab({ onMessage }: { onMessage: (msg: string) => v
         </p>
         <button type="button" className="growth-btn growth-btn-secondary growth-btn-sm" onClick={seedEmail}>
           Load email seed data
+        </button>
+        <button type="button" className="growth-btn growth-btn-secondary growth-btn-sm" onClick={refreshEmailCopy}>
+          Refresh email copy
         </button>
       </div>
 
@@ -324,6 +345,17 @@ export function EmailMarketingTab({ onMessage }: { onMessage: (msg: string) => v
                         <li key={e.id}>
                           <strong>{e.send_timing}:</strong> {e.subject}
                           <span className="growth-tag">{e.graphic_recommendation}</span>
+                          <CopyBtn
+                            text={formatKlaviyoPasteBlock({
+                              send_timing: e.send_timing ?? undefined,
+                              subject: e.subject ?? "",
+                              preview_text: e.preview_text ?? "",
+                              body: e.body_outline ?? "",
+                              cta: e.cta ?? "",
+                              graphic_recommendation: e.graphic_recommendation ?? "",
+                            })}
+                            label="Copy"
+                          />
                           <select
                             value={e.status}
                             onChange={(ev) => {
@@ -438,6 +470,10 @@ export function EmailMarketingTab({ onMessage }: { onMessage: (msg: string) => v
             <h2>Email library</h2>
             <ExportBtn rows={library as unknown as Record<string, unknown>[]} filename="email-library.csv" />
           </div>
+          <p className="growth-muted">
+            Each email includes subject, preview, full body draft, CTA, and graphic + Canva brief.
+            Click <strong>Copy full Klaviyo block</strong> and paste into Klaviyo.
+          </p>
           {!library.length ? (
             <EmptyState title="No emails in library" body="Load email seed data." />
           ) : (
@@ -454,8 +490,19 @@ export function EmailMarketingTab({ onMessage }: { onMessage: (msg: string) => v
                     <p><strong>Goal:</strong> {e.goal}</p>
                     <p><strong>CTA:</strong> {e.cta}</p>
                     <p><strong>Graphic:</strong> {e.graphic_recommendation}</p>
-                    <p><strong>Body outline:</strong> {e.body_outline}</p>
-                    <CopyBtn text={`Subject: ${e.subject}\nPreview: ${e.preview_text}\n\n${e.body_outline}\n\nCTA: ${e.cta}`} label="Copy for Klaviyo" />
+                    <p><strong>Body:</strong></p>
+                    <pre className="growth-email-body-preview">{e.body_outline}</pre>
+                    <p><strong>Graphic:</strong> {e.graphic_recommendation}</p>
+                    <CopyBtn
+                      text={formatKlaviyoPasteBlock({
+                        subject: e.subject,
+                        preview_text: e.preview_text ?? "",
+                        body: e.body_outline ?? "",
+                        cta: e.cta ?? "",
+                        graphic_recommendation: e.graphic_recommendation ?? "",
+                      })}
+                      label="Copy full Klaviyo block"
+                    />
                   </div>
                 </details>
               ))}
