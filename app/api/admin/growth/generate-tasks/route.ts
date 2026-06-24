@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { growthDb, todayIso } from "@/app/lib/growth/db";
 import { TODAY_CHECKLIST } from "@/app/lib/growth/seed-data";
+import { getEmailTasksForDay } from "@/app/lib/growth/email-data";
 
 export async function POST() {
   const db = growthDb();
@@ -9,6 +10,7 @@ export async function POST() {
   }
 
   const today = todayIso();
+  const dayOfWeek = new Date(today + "T12:00:00").getDay();
 
   const { data: existing } = await db
     .from("growth_daily_tasks")
@@ -19,7 +21,8 @@ export async function POST() {
     return NextResponse.json({ message: "Tasks already exist for today.", count: existing.length });
   }
 
-  const rows = TODAY_CHECKLIST.map((t) => ({
+  const emailTasks = getEmailTasksForDay(dayOfWeek);
+  const rows = [...TODAY_CHECKLIST, ...emailTasks].map((t) => ({
     task_date: today,
     ...t,
     status: "not_started",

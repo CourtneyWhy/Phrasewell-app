@@ -1472,3 +1472,141 @@ html {
   overflow: auto;
 }
 
+.growth-subtabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  margin-bottom: 16px;
+  padding-bottom: 4px;
+}
+
+.growth-subtab {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.growth-subtab-active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.growth-funnel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 16px;
+}
+
+.growth-funnel-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.growth-funnel-node {
+  width: 100%;
+  max-width: 360px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  text-align: center;
+}
+
+.growth-funnel-count {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: var(--font-heading), Lora, serif;
+  margin: 4px 0;
+}
+
+.growth-funnel-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.growth-funnel-arrow {
+  color: var(--muted);
+  font-size: 18px;
+  padding: 4px 0;
+}
+
+.growth-flow-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.growth-flow-card summary {
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.growth-flow-detail {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.growth-flow-email-list {
+  list-style: disc;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.growth-flow-email-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.growth-inline-input {
+  width: 72px;
+  height: 32px;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.growth-pipeline-diagram {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+.growth-table-pipeline th,
+.growth-table-pipeline td {
+  font-size: 12px;
+  padding: 6px 4px;
+}
+
+.growth-pipeline-select {
+  width: 64px;
+  height: 28px;
+  font-size: 11px;
+  padding: 0 2px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.growth-email-library {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+

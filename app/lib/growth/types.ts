@@ -146,3 +146,131 @@ export type GrowthAgentRun = {
   notes: string | null;
   created_at: string;
 };
+
+export type PipelineStatus = "not_started" | "drafted" | "approved" | "scheduled" | "posted";
+
+export type GrowthEmailSegment = {
+  id: string;
+  slug: string;
+  name: string;
+  definition: string | null;
+  klaviyo_segment_name: string | null;
+  lifecycle_stage: string | null;
+  estimated_count: number | null;
+  priority: Priority;
+  status: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type GrowthEmailFlow = {
+  id: string;
+  slug: string;
+  name: string;
+  purpose: string | null;
+  trigger_description: string | null;
+  goal: string | null;
+  status: string;
+  owner: string | null;
+  lifecycle_stage: string | null;
+  klaviyo_flow_name: string | null;
+  sort_order: number | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type GrowthEmailFlowEmail = {
+  id: string;
+  flow_slug: string;
+  step_number: number;
+  send_timing: string | null;
+  subject: string | null;
+  preview_text: string | null;
+  body_outline: string | null;
+  goal: string | null;
+  cta: string | null;
+  graphic_recommendation: string | null;
+  status: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type GrowthEmailCampaign = {
+  id: string;
+  send_date: string | null;
+  campaign_name: string;
+  campaign_type: string | null;
+  segment_slug: string | null;
+  subject: string | null;
+  preview_text: string | null;
+  goal: string | null;
+  cta: string | null;
+  graphic_recommendation: string | null;
+  status: string;
+  flow_slug: string | null;
+  revenue_attributed: number | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type GrowthEmailLibraryItem = {
+  id: string;
+  slug: string | null;
+  subject: string;
+  preview_text: string | null;
+  goal: string | null;
+  cta: string | null;
+  graphic_recommendation: string | null;
+  body_outline: string | null;
+  status: string;
+  campaign: string | null;
+  flow_slug: string | null;
+  lifecycle_stage: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type GrowthEmailAnalyticsDaily = {
+  id: string;
+  metric_date: string;
+  subscribers: number | null;
+  open_rate: number | null;
+  click_rate: number | null;
+  unsubscribes: number | null;
+  waitlist_conversion: number | null;
+  beta_conversion: number | null;
+  ltd_conversion: number | null;
+  revenue_per_email: number | null;
+  revenue_per_subscriber: number | null;
+  top_email: string | null;
+  worst_email: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type GrowthContentPipeline = {
+  id: string;
+  behavior_id: string;
+  behavior_title: string;
+  category_id: string;
+  category_title: string;
+  blog_status: PipelineStatus;
+  newsletter_status: PipelineStatus;
+  linkedin_status: PipelineStatus;
+  x_status: PipelineStatus;
+  facebook_status: PipelineStatus;
+  reddit_status: PipelineStatus;
+  instagram_status: PipelineStatus;
+  tiktok_status: PipelineStatus;
+  pinterest_status: PipelineStatus;
+  blog_url: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};

@@ -1,5 +1,6 @@
 import { BLOG_TITLES, BEHAVIOR_CATEGORIES, CREATOR_PITCH } from "@/app/lib/growth/templates";
 import { LAUNCH_WEEK_PLAN } from "@/app/lib/growth/launch-phases";
+import { getEmailTasksForDay } from "@/app/lib/growth/email-data";
 
 const PITCH = CREATOR_PITCH;
 
@@ -266,6 +267,8 @@ export function generateDailyTasks(fromDate = "2026-06-23", toDate = "2026-07-28
         weekday.push({ task_title: t, task_type: "launch", platform: "All", priority: "high" });
       });
     }
+
+    getEmailTasksForDay(day).forEach((t) => weekday.push(t));
 
     weekday.forEach((t) => tasks.push({ ...t, task_date, status: "not_started" }));
   }

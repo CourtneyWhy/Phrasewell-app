@@ -36,6 +36,8 @@ import {
   StatCard,
   StatusBadge,
 } from "./shared";
+import { EmailMarketingTab } from "./EmailMarketingTab";
+import { ContentEngineTab } from "./ContentEngineTab";
 
 const TABS = [
   { id: "today", label: "Today" },
@@ -43,8 +45,10 @@ const TABS = [
   { id: "communities", label: "Communities" },
   { id: "creators", label: "Creators" },
   { id: "content", label: "Content" },
+  { id: "content-engine", label: "Content Engine" },
   { id: "outreach", label: "Outreach" },
   { id: "feedback", label: "Beta Feedback" },
+  { id: "email", label: "Email Marketing" },
   { id: "metrics", label: "Metrics" },
   { id: "revenue", label: "Revenue" },
   { id: "agents", label: "Agents" },
@@ -1007,6 +1011,10 @@ export function GrowthDashboard() {
             <ExportBtn rows={revenue as unknown as Record<string, unknown>[]} filename="growth-revenue.csv" />
           </section>
         )}
+
+        {tab === "email" && <EmailMarketingTab onMessage={setMessage} />}
+
+        {tab === "content-engine" && <ContentEngineTab onMessage={setMessage} />}
 
         {tab === "agents" && (
           <section>
