@@ -1,123 +1,127 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PageTitle } from "@/app/components/PageTitle";
 import { SectionLabel } from "@/app/components/SectionLabel";
-import type { MomentId } from "@/app/lib/contentLibrary";
+import { AgeSelector } from "@/app/components/AgeSelector";
+import type { AgeBand, MomentId } from "@/app/lib/contentLibrary";
+import { getAppDefaults, setAppDefaults } from "@/app/lib/app-defaults";
 import { MOMENT_CONTEXT_HEADER, MOMENT_OPTIONS } from "@/app/lib/moments";
 
 export default function SettingsPage() {
-  const [age, setAge] = useState("4–7");
+  const [ageBand, setAgeBand] = useState<AgeBand>("4-7");
   const [momentId, setMomentId] = useState<MomentId>("unsafe_right_now");
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const defaults = getAppDefaults();
+    setAgeBand(defaults.ageBand);
+    setMomentId(defaults.momentId);
+  }, []);
+
+  function updateAge(next: AgeBand) {
+    setAgeBand(next);
+    setAppDefaults({ ageBand: next });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1500);
+  }
+
+  function updateMoment(next: MomentId) {
+    setMomentId(next);
+    setAppDefaults({ momentId: next });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1500);
+  }
 
   return (
     <main className="app-container" style={{ paddingTop: "var(--space-3)", paddingBottom: 100 }}>
       <PageTitle>Settings</PageTitle>
 
+      {saved ? (
+        <p role="status" style={{ fontSize: 13, color: "var(--muted)", marginTop: -8, marginBottom: 16 }}>
+          Saved
+        </p>
+      ) : null}
+
       <section style={{ marginBottom: "var(--space-4)" }}>
         <SectionLabel>Defaults</SectionLabel>
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+        <p style={{ fontSize: 14, color: "var(--muted)", marginTop: 0, marginBottom: 16, lineHeight: 1.5 }}>
+          Used when you start a new moment from Home or Search.
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+          <AgeSelector value={ageBand} onChange={updateAge} />
           <div>
-            <label style={{ fontSize: 14, color: "var(--text)", display: "block", marginBottom: 6 }}>
-              Age
-            </label>
-            <select
-              value={age}
-              onChange={(e) => setAge(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "10px 14px",
-                borderRadius: "var(--btn-radius)",
-                border: "1px solid var(--border)",
-                background: "var(--surface)",
-                color: "var(--text)",
-                fontSize: 15,
-              }}
-            >
-              <option value="0–3">0–3</option>
-              <option value="4–7">4–7</option>
-              <option value="8–12">8–12</option>
-              <option value="Teen">Teen</option>
-            </select>
-          </div>
-          <div>
-            <label style={{ fontSize: 14, color: "var(--text)", display: "block", marginBottom: 6 }}>
+            <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 10, fontWeight: 600, marginTop: 0 }}>
               {MOMENT_CONTEXT_HEADER}
-            </label>
-            <select
-              value={momentId}
-              onChange={(e) => setMomentId(e.target.value as MomentId)}
-              style={{
-                width: "100%",
-                padding: "10px 14px",
-                borderRadius: "var(--btn-radius)",
-                border: "1px solid var(--border)",
-                background: "var(--surface)",
-                color: "var(--text)",
-                fontSize: 15,
-              }}
-            >
-              {MOMENT_OPTIONS.map((mode) => (
-                <option key={mode.id} value={mode.id}>
-                  {mode.label}
-                </option>
+            </p>
+            <div role="group" aria-label={MOMENT_CONTEXT_HEADER} style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {MOMENT_OPTIONS.map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => updateMoment(m.id)}
+                  style={{
+                    padding: "10px 14px",
+                    borderRadius: 20,
+                    border:
+                      momentId === m.id
+                        ? m.id === "unsafe_right_now"
+                          ? "1px solid var(--safety-outline)"
+                          : "1px solid var(--accent)"
+                        : "1px solid var(--border)",
+                    background:
+                      momentId === m.id
+                        ? m.id === "unsafe_right_now"
+                          ? "rgba(197, 48, 48, 0.08)"
+                          : "var(--accent-soft)"
+                        : "var(--surface)",
+                    color: "var(--text)",
+                    fontSize: 14,
+                    fontWeight: 500,
+                    cursor: "pointer",
+                  }}
+                >
+                  {m.label}
+                </button>
               ))}
-            </select>
+            </div>
           </div>
         </div>
       </section>
 
       <section style={{ marginBottom: "var(--space-4)" }}>
-        <SectionLabel>Accessibility</SectionLabel>
+        <SectionLabel>Beta</SectionLabel>
         <div
-          style={{
-            padding: "var(--space-3)",
-            background: "var(--surface)",
-            border: "1px solid var(--border)",
-            borderRadius: "var(--card-radius)",
-            fontSize: 14,
-            color: "var(--muted)",
-          }}
+          className="app-card"
+          style={{ padding: "var(--space-4)", fontSize: 14, color: "var(--muted)", lineHeight: 1.55 }}
         >
-          Reduce motion, larger text, and other preferences (placeholder).
+          <p style={{ margin: "0 0 12px" }}>
+            You&apos;re using the private beta. Accounts and subscriptions are coming after launch.
+          </p>
+          <Link href="/#beta" className="app-link" style={{ fontSize: 14 }}>
+            Join the waitlist
+          </Link>
+          {" · "}
+          <Link href="/" className="app-link" style={{ fontSize: 14 }}>
+            Marketing site
+          </Link>
         </div>
       </section>
 
       <section>
-        <SectionLabel>Account</SectionLabel>
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-          <Link
-            href="#"
-            style={{
-              display: "block",
-              padding: "var(--space-3)",
-              background: "var(--surface)",
-              border: "1px solid var(--border)",
-              borderRadius: "var(--card-radius)",
-              fontSize: 15,
-              color: "var(--text)",
-              textDecoration: "none",
-            }}
-          >
-            Subscription
-          </Link>
-          <Link
-            href="#"
-            style={{
-              display: "block",
-              padding: "var(--space-3)",
-              background: "var(--surface)",
-              border: "1px solid var(--border)",
-              borderRadius: "var(--card-radius)",
-              fontSize: 15,
-              color: "var(--text)",
-              textDecoration: "none",
-            }}
-          >
-            Manage account
-          </Link>
-        </div>
+        <SectionLabel>Sign out of beta</SectionLabel>
+        <button
+          type="button"
+          className="app-btn-primary"
+          style={{ width: "100%", background: "var(--surface)", color: "var(--text)", border: "1px solid var(--border)" }}
+          onClick={async () => {
+            await fetch("/api/beta-auth", { method: "DELETE" });
+            window.location.href = "/app/login";
+          }}
+        >
+          Leave app (clear beta access on this device)
+        </button>
       </section>
     </main>
   );

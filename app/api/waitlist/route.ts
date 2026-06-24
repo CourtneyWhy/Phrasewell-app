@@ -63,6 +63,40 @@ export async function POST(request: Request) {
       );
     }
     console.error("waitlist insert error:", error);
+
+    // Wrong key (anon instead of service_role) or missing table grants
+    if (
+      error.code === "42501" ||
+      error.message?.toLowerCase().includes("row-level security") ||
+      error.message?.toLowerCase().includes("permission denied")
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Server configuration issue. Confirm the service_role key (not anon) is in Vercel, then redeploy.",
+        },
+        { status: 503 },
+      );
+    }
+
+    if (error.code === "PGRST205" || error.message?.includes("waitlist_signups")) {
+      return NextResponse.json(
+        { error: "Waitlist is not set up yet. Please try again soon." },
+        { status: 503 },
+      );
+    }
+
+    if (
+      error.code === "PGRST301" ||
+      error.message?.toLowerCase().includes("invalid api key") ||
+      error.message?.toLowerCase().includes("jwt")
+    ) {
+      return NextResponse.json(
+        { error: "Signup is temporarily unavailable. Please try again later." },
+        { status: 503 },
+      );
+    }
+
     return NextResponse.json(
       { error: "Something went wrong. Please try again." },
       { status: 500 },

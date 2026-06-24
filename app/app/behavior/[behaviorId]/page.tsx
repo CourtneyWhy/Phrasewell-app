@@ -21,6 +21,7 @@ import { HelpTopBar } from "@/app/components/HelpTopBar";
 import { AgeSelector } from "@/app/components/AgeSelector";
 import { MomentCardView } from "@/app/components/MomentCardView";
 import { SaveHeartButton } from "@/app/components/SaveHeartButton";
+import { PhraseFeedback } from "@/app/components/PhraseFeedback";
 import { useSavedPhrases } from "@/app/contexts/SavedPhrasesContext";
 
 function triggerHaptic() {
@@ -227,6 +228,14 @@ export default function BehaviorPage() {
                 saveControl={
                   <SaveHeartButton saved={isSaved} onClick={handleHeart} />
                 }
+              />
+
+              <PhraseFeedback
+                key={card.id}
+                card={card}
+                behaviorId={behaviorId}
+                ageBand={ageBand}
+                momentId={momentId}
               />
 
               {canShowAnother && (

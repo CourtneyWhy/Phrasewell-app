@@ -12,4 +12,6 @@ create unique index if not exists waitlist_signups_email_key on public.waitlist_
 
 alter table public.waitlist_signups enable row level security;
 
--- No public policies: inserts go through the Next.js API using the service role key.
+-- Server-side API uses the service role key (bypasses RLS). No public insert policy needed.
+grant all on table public.waitlist_signups to service_role;
+grant all on table public.waitlist_signups to postgres;
