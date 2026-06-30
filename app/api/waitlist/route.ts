@@ -1,16 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/app/lib/supabase/server";
-
-const PARENT_TYPES = [
-  "Foster parent",
-  "Adoptive parent",
-  "Kinship caregiver",
-  "Biological parent",
-  "Stepparent",
-  "Grandparent caregiver",
-  "Professional supporting parents",
-  "Other",
-] as const;
+import { PARENT_TYPES } from "@/app/lib/profile/constants";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -22,7 +12,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { first_name, email, parent_type } = body as Record<string, unknown>;
+  const {
+    first_name,
+    email,
+    parent_type,
+    kid_count,
+    challenge_tags,
+    age_bands,
+  } = body as Record<string, unknown>;
 
   const firstName = typeof first_name === "string" ? first_name.trim() : "";
   const emailValue = typeof email === "string" ? email.trim().toLowerCase() : "";
@@ -40,6 +37,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Please select a parent type." }, { status: 400 });
   }
 
+  const kidCount = typeof kid_count === "string" ? kid_count.trim() : null;
+  const challenges = Array.isArray(challenge_tags)
+    ? challenge_tags.filter((t): t is string => typeof t === "string")
+    : [];
+  const ages = Array.isArray(age_bands)
+    ? age_bands.filter((t): t is string => typeof t === "string")
+    : [];
+
   const supabase = createSupabaseAdmin();
   if (!supabase) {
     return NextResponse.json(
@@ -48,36 +53,41 @@ export async function POST(request: Request) {
     );
   }
 
-  const { error } = await supabase.from("waitlist_signups").insert({
+  const row = {
     first_name: firstName,
     email: emailValue,
     parent_type: parentType,
     source: "landing_page",
-  });
+    kid_count: kidCount || null,
+    challenge_tags: challenges,
+    age_bands: ages,
+    updated_at: new Date().toISOString(),
+  };
+
+  const { error } = await supabase.from("waitlist_signups").insert(row);
 
   if (error) {
     if (error.code === "23505") {
-      return NextResponse.json(
-        { error: "This email is already on the list." },
-        { status: 409 },
-      );
-    }
-    console.error("waitlist insert error:", error);
+      const { error: updateErr } = await supabase
+        .from("waitlist_signups")
+        .update({
+          first_name: firstName,
+          parent_type: parentType,
+          kid_count: kidCount || null,
+          challenge_tags: challenges,
+          age_bands: ages,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("email", emailValue);
 
-    // Wrong key (anon instead of service_role) or missing table grants
-    if (
-      error.code === "42501" ||
-      error.message?.toLowerCase().includes("row-level security") ||
-      error.message?.toLowerCase().includes("permission denied")
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Server configuration issue. Confirm the service_role key (not anon) is in Vercel, then redeploy.",
-        },
-        { status: 503 },
-      );
+      if (updateErr) {
+        console.error("waitlist update error:", updateErr);
+        return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
+      }
+      return NextResponse.json({ ok: true, updated: true });
     }
+
+    console.error("waitlist upsert error:", error);
 
     if (error.code === "PGRST205" || error.message?.includes("waitlist_signups")) {
       return NextResponse.json(
@@ -86,21 +96,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (
-      error.code === "PGRST301" ||
-      error.message?.toLowerCase().includes("invalid api key") ||
-      error.message?.toLowerCase().includes("jwt")
-    ) {
-      return NextResponse.json(
-        { error: "Signup is temporarily unavailable. Please try again later." },
-        { status: 503 },
-      );
-    }
-
-    return NextResponse.json(
-      { error: "Something went wrong. Please try again." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });

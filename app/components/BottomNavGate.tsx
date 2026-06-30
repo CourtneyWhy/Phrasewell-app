@@ -7,6 +7,9 @@ import { BottomNav } from "@/app/components/BottomNav";
 export function shouldShowBottomNav(pathname: string): boolean {
   if (!pathname.startsWith("/app")) return false;
   if (pathname === "/app/login") return false;
+  if (pathname.startsWith("/app/onboarding")) return false;
+  if (pathname.startsWith("/app/auth")) return false;
+  if (pathname === "/app/profile") return true;
   if (pathname.startsWith("/app/category/")) return false;
   if (pathname.startsWith("/app/behavior/")) return false;
   return true;

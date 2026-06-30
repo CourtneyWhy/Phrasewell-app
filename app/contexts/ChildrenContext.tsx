@@ -1,15 +1,12 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useContext } from "react";
+import { useProfile } from "@/app/contexts/ProfileContext";
 
 export type Child = {
   id: string;
   name: string;
 };
-
-const defaultChildren: Child[] = [
-  { id: "1", name: "My Child" },
-];
 
 type ChildrenContextValue = {
   children: Child[];
@@ -20,28 +17,22 @@ type ChildrenContextValue = {
 
 const ChildrenContext = createContext<ChildrenContextValue | null>(null);
 
+/** Bridges ProfileContext children for legacy ChildCarousel / SelectedChildName */
 export function ChildrenProvider({ children: reactChildren }: { children: React.ReactNode }) {
-  const [children, setChildren] = useState<Child[]>(defaultChildren);
-  const [selectedId, setSelectedId] = useState<string | null>(defaultChildren[0]?.id ?? null);
+  const profile = useProfile();
+  const list: Child[] = profile.activeChildren.map((c) => ({ id: c.id, name: c.name }));
 
-  const addChild = useCallback((name: string) => {
-    const id = `child-${Date.now()}`;
-    const child: Child = { id, name };
-    setChildren((prev) => [...prev, child]);
-    setSelectedId(id);
-    return child;
-  }, []);
+  const value: ChildrenContextValue = {
+    children: list.length ? list : [{ id: "placeholder", name: "Add a child in Profile" }],
+    selectedId: profile.selectedChildId,
+    setSelectedId: profile.setSelectedChildId,
+    addChild: (name) => {
+      void profile.addChild({ name, age_band: "4-7", relationship: "Biological child" });
+      return { id: "pending", name };
+    },
+  };
 
-  const value = useMemo<ChildrenContextValue>(
-    () => ({ children, selectedId, setSelectedId, addChild }),
-    [children, selectedId, addChild]
-  );
-
-  return (
-    <ChildrenContext.Provider value={value}>
-      {reactChildren}
-    </ChildrenContext.Provider>
-  );
+  return <ChildrenContext.Provider value={value}>{reactChildren}</ChildrenContext.Provider>;
 }
 
 const fallbackValue: ChildrenContextValue = {

@@ -91,13 +91,20 @@ export default function SettingsPage() {
       </section>
 
       <section style={{ marginBottom: "var(--space-4)" }}>
+        <SectionLabel>Profile</SectionLabel>
+        <Link href="/app/profile" className="app-link" style={{ fontSize: 15 }}>
+          Profile & family →
+        </Link>
+      </section>
+
+      <section style={{ marginBottom: "var(--space-4)" }}>
         <SectionLabel>Beta</SectionLabel>
         <div
           className="app-card"
           style={{ padding: "var(--space-4)", fontSize: 14, color: "var(--muted)", lineHeight: 1.55 }}
         >
           <p style={{ margin: "0 0 12px" }}>
-            You&apos;re using the private beta. Accounts and subscriptions are coming after launch.
+            Signed in with your email. Your kids and preferences save to your account.
           </p>
           <Link href="/#beta" className="app-link" style={{ fontSize: 14 }}>
             Join the waitlist
@@ -116,6 +123,9 @@ export default function SettingsPage() {
           className="app-btn-primary"
           style={{ width: "100%", background: "var(--surface)", color: "var(--text)", border: "1px solid var(--border)" }}
           onClick={async () => {
+            const { createSupabaseBrowser } = await import("@/app/lib/supabase/browser");
+            const supabase = createSupabaseBrowser();
+            await supabase?.auth.signOut();
             await fetch("/api/beta-auth", { method: "DELETE" });
             window.location.href = "/app/login";
           }}
