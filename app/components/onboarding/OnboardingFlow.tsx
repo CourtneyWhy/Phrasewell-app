@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { AgeBand } from "@/app/lib/contentLibrary";
-import { GOTCHA_PITCH } from "@/app/lib/growth/launch-strategy";
 import {
   AGE_BAND_OPTIONS,
   CHALLENGE_OPTIONS,
@@ -22,16 +21,16 @@ type DraftChild = {
 
 const INTRO_SLIDES = [
   {
-    title: "Words when your brain goes blank",
-    body: GOTCHA_PITCH,
+    title: "When you don't know what to say or do",
+    body: "Tap what's happening. Get words and steps you can use right away.",
   },
   {
     title: "Built for hard moments",
-    body: "Exact say-this / do-this scripts when kids are melting down — for every parent, in the moment. Not another course.",
+    body: "Clear scripts for tough moments. What to say and what to do, when you need it.",
   },
   {
     title: "Made by a parent who needed this",
-    body: "From a parent who needed calm words when it counted — not more theory to read later.",
+    body: "From a parent who needed calm words when it counted.",
   },
 ];
 
@@ -71,22 +70,25 @@ export function OnboardingFlow() {
 
   const summaryCards = useMemo(() => {
     const cards: string[] = [];
-    if (draftChildren.length) {
-      const ages = [...new Set(draftChildren.map((c) => c.age_band))].join(", ");
-      cards.push(`Scripts tuned for ages ${ages}`);
+
+    const namedKids = draftChildren.filter((c) => c.name.trim());
+    if (namedKids.length === 1) {
+      cards.push(`Scripts for ${namedKids[0].name.trim()}`);
+    } else if (namedKids.length > 1) {
+      cards.push(`Scripts for ${namedKids.map((c) => c.name.trim()).join(", ")}`);
     }
-    if (parentTypes.length) {
-      cards.push(`Guidance for ${parentTypes[0].toLowerCase()}s`);
+
+    for (const id of challenges) {
+      const label = CHALLENGE_OPTIONS.find((c) => c.id === id)?.label;
+      if (label) cards.push(label);
     }
-    if (challenges.length) {
-      const label = CHALLENGE_OPTIONS.find((c) => c.id === challenges[0])?.label;
-      if (label) cards.push(`Focus on ${label.toLowerCase()}`);
+
+    if (cards.length === 0) {
+      cards.push("Scripts ready when you need them");
     }
-    while (cards.length < 3) {
-      cards.push("Instant scripts when kids are melting down");
-    }
-    return cards.slice(0, 3);
-  }, [draftChildren, parentTypes, challenges]);
+
+    return cards;
+  }, [draftChildren, challenges]);
 
   const toggleParentType = (t: ParentType) => {
     setParentTypes((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
@@ -266,7 +268,7 @@ export function OnboardingFlow() {
         {step === INTRO_SLIDES.length + 1 && (
           <>
             <h1 className="font-heading onboarding-title">What&apos;s hardest right now?</h1>
-            <p className="onboarding-hint">Check all that apply — we&apos;ll surface these categories first.</p>
+            <p className="onboarding-hint">Check all that apply. We&apos;ll show these categories first.</p>
             <div className="onboarding-chips">
               {CHALLENGE_OPTIONS.map((c) => (
                 <button
@@ -286,7 +288,7 @@ export function OnboardingFlow() {
           <>
             <h1 className="font-heading onboarding-title">Your kids</h1>
             <p className="onboarding-hint">
-              Name or nickname only. Add each child you want scripts for. Email required before we save — you&apos;re signed in as {email || "…"}.
+              Name or nickname only. Add each child you want scripts for. You&apos;re signed in as {email || "…"}.
             </p>
             {draftChildren.map((child) => (
               <div key={child.key} className="onboarding-child-block">
@@ -341,12 +343,10 @@ export function OnboardingFlow() {
         {step === INTRO_SLIDES.length + 3 && (
           <>
             <h1 className="font-heading onboarding-title">Profile ready</h1>
-            <p className="onboarding-hint">Based on your answers, we&apos;ll focus on:</p>
+            <p className="onboarding-hint">Here&apos;s what we set up for you:</p>
             <ul className="onboarding-summary-list">
-              {summaryCards.map((text, i) => (
-                <li key={i}>
-                  <strong>{i + 1}.</strong> {text}
-                </li>
+              {summaryCards.map((text) => (
+                <li key={text}>{text}</li>
               ))}
             </ul>
           </>
