@@ -50,10 +50,12 @@ export function OnboardingFlow() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const supabase = createSupabaseBrowser();
-    supabase?.auth.getUser().then(({ data }) => {
+    void (async () => {
+      const supabase = createSupabaseBrowser();
+      if (!supabase) return;
+      const { data } = await supabase.auth.getUser();
       if (data.user?.email) setEmail(data.user.email);
-    });
+    })();
     fetch("/api/profile")
       .then((r) => r.json())
       .then((d) => {

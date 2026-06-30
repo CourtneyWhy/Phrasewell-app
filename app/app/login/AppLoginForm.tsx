@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { LandingLogo } from "@/app/components/landing/LandingLogo";
 import { createSupabaseBrowser } from "@/app/lib/supabase/browser";
+import { REQUIRED_ONBOARDING_VERSION } from "@/app/lib/profile/constants";
 
 export default function AppLoginForm({ betaGate = true }: { betaGate?: boolean }) {
   const router = useRouter();
@@ -13,9 +14,30 @@ export default function AppLoginForm({ betaGate = true }: { betaGate?: boolean }
 
   const [betaPassword, setBetaPassword] = useState("");
   const [email, setEmail] = useState("");
+  const [otpCode, setOtpCode] = useState("");
   const [step, setStep] = useState<"beta" | "email" | "sent">(betaGate ? "beta" : "email");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  async function finishSignIn() {
+    const profileRes = await fetch("/api/profile");
+    if (profileRes.ok) {
+      const data = await profileRes.json();
+      const needs = (data.profile?.onboarding_version ?? 0) < REQUIRED_ONBOARDING_VERSION;
+      router.replace(needs ? "/app/onboarding" : next);
+    } else {
+      router.replace("/app/onboarding");
+    }
+    router.refresh();
+  }
+
+  useEffect(() => {
+    const authError = searchParams.get("error");
+    if (authError) {
+      setError(decodeURIComponent(authError));
+      setStep(betaGate ? "email" : "email");
+    }
+  }, [searchParams, betaGate]);
 
   async function handleBetaSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -61,12 +83,59 @@ export default function AppLoginForm({ betaGate = true }: { betaGate?: boolean }
       });
 
       if (otpError) {
-        setError(otpError.message);
+        const msg = otpError.message.toLowerCase();
+        if (msg.includes("rate limit")) {
+          setError(
+            "Too many sign-in emails sent. Supabase’s free email allows about 2 per hour — wait an hour, or set up Resend SMTP in Supabase to remove this limit.",
+          );
+        } else {
+          setError(otpError.message);
+        }
         return;
       }
+      setOtpCode("");
       setStep("sent");
     } catch {
       setError("Could not send sign-in link.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleOtpSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+
+    const supabase = createSupabaseBrowser();
+    if (!supabase) {
+      setError("Sign-in is not configured yet.");
+      setSubmitting(false);
+      return;
+    }
+
+    const token = otpCode.replace(/\D/g, "");
+    if (token.length < 6) {
+      setError("Enter the 6-digit code from your email.");
+      setSubmitting(false);
+      return;
+    }
+
+    try {
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: email.trim().toLowerCase(),
+        token,
+        type: "email",
+      });
+
+      if (verifyError) {
+        setError(verifyError.message);
+        return;
+      }
+
+      await finishSignIn();
+    } catch {
+      setError("Could not verify code.");
     } finally {
       setSubmitting(false);
     }
@@ -143,13 +212,41 @@ export default function AppLoginForm({ betaGate = true }: { betaGate?: boolean }
               Check your email
             </h1>
             <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.6 }}>
-              We sent a sign-in link to <strong>{email}</strong>. Click it on this device to open Phrasewell.
+              We sent a sign-in email to <strong>{email}</strong>. Easiest: enter the{" "}
+              <strong>6-digit code</strong> from the email below.
+            </p>
+            <form onSubmit={handleOtpSubmit} style={{ marginTop: 20 }}>
+              <label className="onboarding-label" htmlFor="login-otp">
+                6-digit code
+              </label>
+              <input
+                id="login-otp"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                className="onboarding-input"
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value)}
+                placeholder="123456"
+                maxLength={8}
+                required
+              />
+              {error ? <p className="onboarding-error">{error}</p> : null}
+              <button type="submit" className="onboarding-btn-primary" disabled={submitting}>
+                {submitting ? "Signing in…" : "Sign in with code"}
+              </button>
+            </form>
+            <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 16, lineHeight: 1.5 }}>
+              Or tap the magic link in the email — use Safari/Chrome on this device, not the Gmail preview.
             </p>
             <button
               type="button"
               className="onboarding-btn-secondary"
-              style={{ marginTop: 16 }}
-              onClick={() => setStep("email")}
+              style={{ marginTop: 12 }}
+              onClick={() => {
+                setError(null);
+                setStep("email");
+              }}
             >
               Use a different email
             </button>
