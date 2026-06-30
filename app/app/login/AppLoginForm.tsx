@@ -212,37 +212,43 @@ export default function AppLoginForm({ betaGate = true }: { betaGate?: boolean }
               Check your email
             </h1>
             <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.6 }}>
-              We sent a sign-in email to <strong>{email}</strong>. Easiest: enter the{" "}
-              <strong>6-digit code</strong> from the email below.
+              We sent a sign-in email to <strong>{email}</strong>. Tap the magic link in the email to sign in.
             </p>
-            <form onSubmit={handleOtpSubmit} style={{ marginTop: 20 }}>
-              <label className="onboarding-label" htmlFor="login-otp">
-                6-digit code
-              </label>
-              <input
-                id="login-otp"
-                type="text"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                className="onboarding-input"
-                value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value)}
-                placeholder="123456"
-                maxLength={8}
-                required
-              />
-              {error ? <p className="onboarding-error">{error}</p> : null}
-              <button type="submit" className="onboarding-btn-primary" disabled={submitting}>
-                {submitting ? "Signing in…" : "Sign in with code"}
-              </button>
-            </form>
-            <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 16, lineHeight: 1.5 }}>
-              Or tap the magic link in the email — use Safari/Chrome on this device, not the Gmail preview.
+            <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 12, lineHeight: 1.5 }}>
+              Open the link in <strong>Safari</strong> or <strong>Chrome</strong> on this device — not the Gmail/Outlook preview.
             </p>
+            <details style={{ marginTop: 20, fontSize: 14 }}>
+              <summary style={{ cursor: "pointer", color: "var(--text)" }}>
+                Have a 6-digit code instead?
+              </summary>
+              <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 8, lineHeight: 1.5 }}>
+                Some emails include a code. If yours does, enter it below. If not, use the magic link above.
+              </p>
+              <form onSubmit={handleOtpSubmit} style={{ marginTop: 12 }}>
+                <label className="onboarding-label" htmlFor="login-otp">
+                  6-digit code
+                </label>
+                <input
+                  id="login-otp"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  className="onboarding-input"
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value)}
+                  placeholder="123456"
+                  maxLength={8}
+                />
+                {error ? <p className="onboarding-error">{error}</p> : null}
+                <button type="submit" className="onboarding-btn-secondary" disabled={submitting} style={{ marginTop: 12 }}>
+                  {submitting ? "Signing in…" : "Sign in with code"}
+                </button>
+              </form>
+            </details>
             <button
               type="button"
               className="onboarding-btn-secondary"
-              style={{ marginTop: 12 }}
+              style={{ marginTop: 16 }}
               onClick={() => {
                 setError(null);
                 setStep("email");

@@ -27,11 +27,11 @@ const INTRO_SLIDES = [
   },
   {
     title: "Built for hard moments",
-    body: "Exact say-this / do-this scripts for foster, adoptive, kinship, and stepparents — not another course.",
+    body: "Exact say-this / do-this scripts when kids are melting down — for every parent, in the moment. Not another course.",
   },
   {
     title: "Made by a parent who needed this",
-    body: "From an adoptive mom who needed calm words in the moment, not more theory.",
+    body: "From a parent who needed calm words when it counted — not more theory to read later.",
   },
 ];
 
@@ -145,13 +145,12 @@ export function OnboardingFlow() {
 
   const goNext = () => {
     setError(null);
-    const introEnd = INTRO_SLIDES.length - 1;
     const aboutStep = INTRO_SLIDES.length;
     const challengeStep = INTRO_SLIDES.length + 1;
     const kidsStep = INTRO_SLIDES.length + 2;
     const readyStep = INTRO_SLIDES.length + 3;
 
-    if (step < introEnd) {
+    if (step < INTRO_SLIDES.length) {
       setStep(step + 1);
       return;
     }
