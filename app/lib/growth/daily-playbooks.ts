@@ -55,7 +55,7 @@ export const TAB_WEEKLY_PLAYBOOKS: Record<number, DailyPlaybook> = {
       { step: 3, where: "Content → Calendar", action: "Schedule LinkedIn + X posts from that behavior for this week." },
       { step: 4, where: "Content Engine", action: "Update LinkedIn + X status → Drafted when copy is ready." },
       { step: 5, where: "Email Marketing → Campaign Calendar", action: "If blog is done, add Friday newsletter entry using that behavior." },
-      { step: 6, where: "Canva", action: "Create script card graphic (cream bg, no stock photos)." },
+      { step: 6, where: "Canva + CapCut", action: "Screenshot script card → Canva slideshow reel → CapCut voiceover + captions → Buffer queue." },
     ],
   },
   4: {

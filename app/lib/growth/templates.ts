@@ -1,14 +1,16 @@
+import { GOTCHA_PITCH } from "@/app/lib/growth/launch-strategy";
+
 export const OUTREACH_TEMPLATES = {
   groupAdmin: `Hi [name], I'm Courtney, a foster-to-adopt/adoptive mom and founder of Phrasewell. I built a simple app that gives foster, adoptive, and kinship parents exact words to say during hard behavior moments — things like food hoarding, lying, aggression, bedtime battles, and meltdowns.
 
 I'm not trying to spam the group. I'm looking for a small number of parents to test the app and tell me what's missing.
 
 Would it be okay to post a short feedback request in the group?`,
-  creatorDm: `Hi [name], I'm Courtney. I'm an adoptive mom building Phrasewell, a simple app that gives foster/adoptive/kinship parents exact "say this" scripts in hard moments.
+  creatorDm: `Hi [name], I'm Courtney. I'm an adoptive mom building Phrasewell — kids melting down, tap the behavior, get words to say instantly.
 
-The app is already built, and I'm inviting early testers now. Your audience is exactly who I built this for.
+I'm inviting a tiny group of foster/adoptive parents for a 2-week preview in exchange for an honest quote if it helps. Your audience is exactly who I built this for.
 
-Would you be open to taking a look or sharing the beta with parents who might want to give feedback?`,
+Would you be open to sharing with parents who might want to try it?`,
   podcastPitch: `Hi [name], I'm Courtney, an adoptive mom and founder of Phrasewell. I built Phrasewell after realizing that in hard parenting moments, foster/adoptive parents often don't need more theory — they need calm words they can use immediately.
 
 Phrasewell gives exact scripts for common hard moments like lying, stealing, food hoarding, meltdowns, aggression, and bedtime struggles.
@@ -17,6 +19,25 @@ I'd love to talk about the gap between trauma-informed parenting advice and what
 };
 
 export const POST_TEMPLATES = {
+  gotcha: GOTCHA_PITCH,
+  xMarketing: `Kids melting down. Tap the behavior. Get words to say instantly.
+
+That's what I'm building with Phrasewell — exact scripts for foster/adoptive/kinship parents when your brain goes blank.
+
+[Share one specific moment: e.g. food hoarding, meltdown, hitting]
+
+Not another course. Words you can say right now.
+
+Waitlist (no app access yet — just the story + script cards): phrasewell.net`,
+  xBuildInPublic: `Founder marketing log — day [N]:
+
+• Waitlist: [number]
+• Shipped: [one marketing thing — email, reel, testimonial]
+• Learning: [one sentence about what parents responded to]
+
+Most founder Twitter is vibe-coding. I'm documenting how to launch a parenting app with 1–2 hrs/day.
+
+${GOTCHA_PITCH}`,
   x: `Hard parenting moment:
 [behavior]
 
@@ -26,9 +47,9 @@ Instead of:
 Try:
 "[script]"
 
-Phrasewell gives parents calm, practical words when their brain is overloaded.
+${GOTCHA_PITCH}
 
-Beta is open now: phrasewell.net`,
+Join waitlist for Founder access Jul 28: phrasewell.net`,
   linkedin: `When we adopted, I learned that the hardest parenting moments weren't always about knowing the theory.
 
 Sometimes I just needed words.
@@ -40,13 +61,11 @@ Just: "Say this right now."
 That's why I built Phrasewell — a simple tool for foster, adoptive, and kinship parents who need calm scripts in hard moments.
 
 I'm inviting early testers now: phrasewell.net`,
-  facebook: `Foster/adoptive/kinship parents — I'm building a simple tool called Phrasewell that gives exact "say this / do this" scripts during hard behavior moments.
+  facebook: `Foster/adoptive/kinship parents — when kids are melting down, do you ever go blank on what to say?
 
-I'm looking for feedback from parents who actually live this.
+I'm building Phrasewell: tap the behavior, get words to say instantly.
 
-The app is already built, and I'm inviting a small beta group.
-
-If you're open to testing and telling me what's missing, you can join here: phrasewell.net`,
+I'm not opening the app to everyone yet — sharing script cards and the story first. Join the waitlist if you want Founder access Jul 28: phrasewell.net`,
   redditSoft: `I've been building a tool for exactly these moments because I've needed scripts myself. Happy to share if useful, but the short version is: start with safety, lower the number of words, and give one clear next step.`,
 };
 

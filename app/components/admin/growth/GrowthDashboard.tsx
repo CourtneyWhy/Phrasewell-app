@@ -6,12 +6,14 @@ import {
   LAUNCH_DATE,
   LAUNCH_PHASES,
   LTD_SCENARIOS,
+  LTD_TIERS,
   MRR_SCENARIOS,
   ANNUAL_1M_SCENARIOS,
   AUTOMATION_RECOMMENDATIONS,
   AUTOMATION_DONT,
   getLaunchCalendarDays,
 } from "@/app/lib/growth/launch-phases";
+import { GOTCHA_PITCH } from "@/app/lib/growth/launch-strategy";
 import { AGENT_PROMPTS } from "@/app/lib/growth/agent-prompts";
 import { OUTREACH_TEMPLATES, POST_TEMPLATES, BLOG_TITLES } from "@/app/lib/growth/templates";
 import type {
@@ -38,9 +40,11 @@ import {
 import { EmailMarketingTab } from "./EmailMarketingTab";
 import { ContentEngineTab } from "./ContentEngineTab";
 import { TodayTab } from "./TodayTab";
+import { ToolsTab } from "./ToolsTab";
 
 const TABS = [
   { id: "today", label: "Today" },
+  { id: "tools", label: "Tools & Plan" },
   { id: "launch", label: "Launch Calendar" },
   { id: "communities", label: "Communities" },
   { id: "creators", label: "Creators" },
@@ -318,7 +322,7 @@ export function GrowthDashboard() {
       <header className="growth-header">
         <div>
           <h1 className="font-heading">Growth OS</h1>
-          <p className="growth-subtitle">Founder LTD launch {LAUNCH_DATE}</p>
+          <p className="growth-subtitle">Founder LTD launch {LAUNCH_DATE} · {GOTCHA_PITCH}</p>
         </div>
         <div className="growth-header-actions">
           <button type="button" className="growth-btn growth-btn-secondary growth-btn-sm" onClick={runSeed}>
@@ -372,6 +376,8 @@ export function GrowthDashboard() {
             />
           </>
         )}
+
+        {tab === "tools" && <ToolsTab />}
 
         {tab === "launch" && (
           <section>
@@ -908,10 +914,33 @@ export function GrowthDashboard() {
 
             <div className="growth-calc-grid">
               <div className="growth-card">
-                <h3>LTD scenarios</h3>
+                <h3>LTD tiers (launch Jul 28)</h3>
                 <table className="growth-table growth-table-compact">
                   <thead>
                     <tr>
+                      <th>Tier</th>
+                      <th>Price</th>
+                      <th>Includes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {LTD_TIERS.map((t) => (
+                      <tr key={t.id}>
+                        <td>{t.name}</td>
+                        <td>${t.price}</td>
+                        <td>{t.description}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <p className="growth-muted">After Aug 4: $12/mo with 7-day trial. No free trial during LTD window.</p>
+              </div>
+              <div className="growth-card">
+                <h3>LTD sales scenarios</h3>
+                <table className="growth-table growth-table-compact">
+                  <thead>
+                    <tr>
+                      <th>Tier</th>
                       <th>Price</th>
                       <th>Sales for $100k</th>
                       <th>Sales for $200k</th>
@@ -919,7 +948,8 @@ export function GrowthDashboard() {
                   </thead>
                   <tbody>
                     {LTD_SCENARIOS.map((s) => (
-                      <tr key={s.price}>
+                      <tr key={`${s.tier}-${s.price}`}>
+                        <td>{s.tier}</td>
                         <td>${s.price}</td>
                         <td>{s.sales100k}</td>
                         <td>{s.sales200k}</td>

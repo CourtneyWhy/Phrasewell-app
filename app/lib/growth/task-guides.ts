@@ -1,5 +1,7 @@
 /** Step-by-step guides for every daily task — zero guesswork for founder or helper */
 
+import { GOTCHA_PITCH } from "@/app/lib/growth/launch-strategy";
+
 export type TaskGuide = {
   tabId: string;
   tabLabel: string;
@@ -58,19 +60,87 @@ export function getTaskGuide(task: TaskLike): TaskGuide {
     };
   }
 
-  if (titleHas(task, "x post", "publish 1 x") || (task.task_type === "content" && task.platform === "X")) {
+  if (titleHas(task, "x marketing", "x post", "publish 1 x") || (task.task_type === "content" && task.platform === "X")) {
     return {
-      tabId: "content",
-      tabLabel: "Content Calendar",
+      tabId: "tools",
+      tabLabel: "Tools & Plan",
+      minutes: 10,
+      steps: [
+        "Open Tools & Plan tab → copy gotcha pitch. Use it in every X post.",
+        "Content tab → Post templates → use xMarketing or xBuildInPublic (NOT vibe-coding posts).",
+        "Pick one angle: script card screenshot, waitlist milestone, marketing lesson, or beta quote.",
+        "Paste into X OR pull from Buffer queue if you batched on Saturday.",
+        "Mark Posted in Content calendar if you logged a row.",
+      ],
+      doneWhen: "1 X marketing post live (parenting/distribution angle).",
+      tip: "Heavy X is good for build-in-public + career — focus on marketing for parents, not tech stack.",
+    };
+  }
+
+  if (titleHas(task, "faceless reel", "canva slideshow", "tiktok") || (task.task_type === "content" && task.platform === "TikTok")) {
+    return {
+      tabId: "tools",
+      tabLabel: "Tools & Plan",
+      minutes: 35,
+      steps: [
+        "Open Tools & Plan → UGC reel recipe (full steps).",
+        "Content Engine → pick 1 behavior → copy Say this + hook.",
+        "Screenshot Moment Card from app or phrasewell.net demo.",
+        "Canva → Video → Slideshow: hook slide → problem → screenshot → gotcha pitch → waitlist CTA. Export MP4.",
+        "CapCut → import → record your voice reading the script → Auto captions → Export.",
+        "Buffer → queue to TikTok + Instagram (same file).",
+      ],
+      doneWhen: "1 reel queued or posted on TikTok + IG.",
+      tip: "Save one Canva template — future reels take ~15 min.",
+    };
+  }
+
+  if (titleHas(task, "monday batch", "schedule 2 weeks", "klaviyo emails") || (task.task_type === "email" && titleHas(task, "batch"))) {
+    return {
+      tabId: "email",
+      tabLabel: "Email Marketing",
+      minutes: 60,
+      steps: [
+        "Open Tools & Plan → Email milestones table — see what to send this week (no price before Jul 28).",
+        "Email Marketing → Email Library → open next 2–4 emails in the pre-launch sequence.",
+        "Klaviyo → Campaigns → create + SCHEDULE (not send live one-by-one).",
+        "Attach script-card image per email from Canva or screenshot.",
+        "Schedule Mon + Thu sends for next 2 weeks.",
+      ],
+      doneWhen: "At least 4 emails scheduled in Klaviyo.",
+      tip: "Do this on good days — skips daily email work on busy kid days.",
+    };
+  }
+
+  if (titleHas(task, "batch:", "buffer queue", "7 x marketing") || (task.platform === "Canva" && titleHas(task, "batch"))) {
+    return {
+      tabId: "tools",
+      tabLabel: "Tools & Plan",
+      minutes: 90,
+      steps: [
+        "Open Tools & Plan → Saturday batch workflow.",
+        "Content Engine → 3 behaviors → Claude → hooks + captions.",
+        "Canva → 2 slideshow reels. CapCut → voiceover + captions.",
+        "Buffer → queue 7 X posts + 2 reels + 1 LinkedIn for the week.",
+      ],
+      doneWhen: "Week of social queued in Buffer.",
+    };
+  }
+
+  if (titleHas(task, "micro-beta", "testimonial", "chase 1") || (task.task_type === "product" && titleHas(task, "micro"))) {
+    return {
+      tabId: "feedback",
+      tabLabel: "Beta Feedback",
       minutes: 15,
       steps: [
-        "Click Open Content Calendar → — scroll to Post templates at the top.",
-        "Copy the X post template OR pick today's row in the content calendar (filter Platform = X).",
-        "Fill in [behavior] and [script] from a Phrasewell moment card or Content Engine behavior.",
-        "Paste into X (twitter.com) — post from your founder account.",
-        "Back on Content tab: find today's row and change status to Posted.",
+        "You should have ≤25 micro-beta parents total — not open to everyone.",
+        "Open Beta Feedback → read latest. DM 1 beta parent who had a good experience.",
+        "Ask: 'Can I use one sentence about how it helped?' (written quote is enough.)",
+        "Flag can_use_publicly on strong quotes in Beta Feedback tab.",
+        "If under 10 quotes collected, prioritize this over new outreach.",
       ],
-      doneWhen: "1 X post published and marked Posted in calendar.",
+      doneWhen: "1 testimonial chase sent OR 1 quote flagged for landing page.",
+      tip: "Waitlist does NOT get app access — only these ≤25 parents.",
     };
   }
 
@@ -80,28 +150,13 @@ export function getTaskGuide(task: TaskLike): TaskGuide {
       tabLabel: "Content Calendar",
       minutes: 20,
       steps: [
-        "Click Open Content Calendar → — use the LinkedIn post template at the top.",
+        "Content tab → Post templates → LinkedIn template.",
         "Personalize 1–2 sentences with your foster/adoptive parent story.",
-        "Post on LinkedIn from your personal profile (not a company page yet).",
-        "Mark the matching content calendar row as Posted.",
+        "Include gotcha pitch: Kids melting down. Tap the behavior. Get words to say instantly.",
+        "Post on LinkedIn from your personal profile.",
+        "Mark content calendar row as Posted.",
       ],
       doneWhen: "1 LinkedIn founder post live.",
-    };
-  }
-
-  if (titleHas(task, "beta feedback", "review beta") || task.task_type === "product") {
-    return {
-      tabId: "feedback",
-      tabLabel: "Beta Feedback",
-      minutes: 10,
-      steps: [
-        "Click Open Beta Feedback →.",
-        "Read the 5 most recent comments — note any repeated 'not really' themes.",
-        "Check thumbs up % at the top. If a category looks problematic, write it down.",
-        "Flag can_use_publicly on any quote you'd want on the landing page.",
-        "If someone gave great feedback, click Create testimonial request task (or email them).",
-      ],
-      doneWhen: "Reviewed latest feedback, flagged any testimonials.",
     };
   }
 
@@ -227,7 +282,7 @@ export function getTaskGuide(task: TaskLike): TaskGuide {
     };
   }
 
-  if (titleHas(task, "batch", "canva", "buffer") || task.task_type === "content" && titleHas(task, "batch")) {
+  if (titleHas(task, "batch", "canva", "buffer") && !titleHas(task, "faceless reel", "klaviyo")) {
     return {
       tabId: "content-engine",
       tabLabel: "Content Engine",
@@ -271,12 +326,13 @@ export function getTaskGuide(task: TaskLike): TaskGuide {
 
   // Default
   return {
-    tabId: "today",
-    tabLabel: "Today",
+    tabId: "tools",
+    tabLabel: "Tools & Plan",
     minutes: 15,
     steps: [
+      `Gotcha pitch: ${GOTCHA_PITCH}`,
       "Read the task title above.",
-      "Check other tabs if unsure: Communities, Content, Email Marketing, Metrics.",
+      "Check Tools & Plan tab for recipes, or Communities / Content / Email as needed.",
       "Mark done when complete.",
     ],
     doneWhen: "Task completed.",

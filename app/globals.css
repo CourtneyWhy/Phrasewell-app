@@ -1784,6 +1784,34 @@ html {
   border-top: 1px solid var(--border);
 }
 
+.growth-card-accent {
+  background: linear-gradient(135deg, #faf6ef 0%, #f5f0e6 100%);
+  border-color: var(--accent);
+}
+
+.growth-gotcha-pitch {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 8px 0 12px;
+}
+
+.growth-tools .growth-batch-block {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.growth-tools .growth-batch-block h3 {
+  font-size: 15px;
+  margin: 0 0 8px;
+}
+
+.growth-list-compact {
+  font-size: 13px;
+  margin-top: 12px;
+}
+
 
 .growth-playbook-steps {
   margin: 12px 0 0;

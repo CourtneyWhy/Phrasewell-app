@@ -213,7 +213,7 @@ export function generateContentCalendar(startDate = "2026-06-23", days = 35) {
   return items;
 }
 
-export function generateDailyTasks(fromDate = "2026-06-23", toDate = "2026-07-28") {
+export function generateDailyTasks(fromDate = "2026-07-01", toDate = "2026-08-03") {
   const tasks: Array<{
     task_date: string;
     task_title: string;
@@ -234,15 +234,15 @@ export function generateDailyTasks(fromDate = "2026-06-23", toDate = "2026-07-28
     if (isWeekend) {
       if (day === 6) {
         tasks.push(
-          { task_date, task_title: "Batch 7 social posts in Buffer", task_type: "content", platform: "Buffer", priority: "high", status: "not_started" },
-          { task_date, task_title: "Create 3 Canva script card prompts", task_type: "content", platform: "Canva", priority: "medium", status: "not_started" },
+          { task_date, task_title: "Batch: 2 faceless reels (Canva + CapCut) + Buffer queue", task_type: "content", platform: "Canva", priority: "high", status: "not_started" },
+          { task_date, task_title: "Batch: queue 7 X marketing posts in Buffer", task_type: "content", platform: "X", priority: "high", status: "not_started" },
           { task_date, task_title: "Review community tracker", task_type: "community", platform: "All", priority: "medium", status: "not_started" },
         );
       } else {
         tasks.push(
           { task_date, task_title: "Review weekly metrics", task_type: "metrics", platform: "Dashboard", priority: "high", status: "not_started" },
           { task_date, task_title: "Update launch readiness", task_type: "planning", platform: "Dashboard", priority: "high", status: "not_started" },
-          { task_date, task_title: "Plan next week tasks", task_type: "planning", platform: "Dashboard", priority: "medium", status: "not_started" },
+          { task_date, task_title: "Plan next week — or skip if needed", task_type: "planning", platform: "Dashboard", priority: "low", status: "not_started" },
         );
       }
       continue;
@@ -251,15 +251,25 @@ export function generateDailyTasks(fromDate = "2026-06-23", toDate = "2026-07-28
     const weekday = [
       { task_title: "30 min Reddit/community help (5 comments)", task_type: "community", platform: "Reddit", priority: "high" },
       { task_title: "30 min Facebook group engagement (3 groups)", task_type: "community", platform: "Facebook", priority: "high" },
-      { task_title: "Publish 1 X post", task_type: "content", platform: "X", priority: "high" },
-      { task_title: "Review beta feedback in dashboard", task_type: "product", platform: "App", priority: "high" },
-      { task_title: "Contact 2 creators or group admins", task_type: "outreach", platform: "All", priority: "medium" },
+      { task_title: "X marketing post — parenting/marketing angle", task_type: "content", platform: "X", priority: "high" },
+      { task_title: "Micro-beta: chase 1 testimonial (max 25 parents)", task_type: "product", platform: "App", priority: "high" },
       { task_title: "Log daily metrics", task_type: "metrics", platform: "Dashboard", priority: "high" },
-      { task_title: "Log prior-day revenue", task_type: "revenue", platform: "Stripe", priority: "medium" },
     ];
 
-    if ([1, 3, 5].includes(day)) {
-      weekday.push({ task_title: "Publish LinkedIn founder post", task_type: "content", platform: "LinkedIn", priority: "high" });
+    if (day === 1) {
+      weekday.push({ task_title: "Monday batch: schedule 2 weeks of Klaviyo emails", task_type: "email", platform: "Klaviyo", priority: "high" });
+    }
+
+    if (day === 3 || day === 6) {
+      weekday.push({ task_title: "Faceless reel: Canva slideshow + CapCut voiceover → TikTok/IG", task_type: "content", platform: "TikTok", priority: "high" });
+    }
+
+    if (day === 5) {
+      weekday.push({ task_title: "LinkedIn founder post (1/week)", task_type: "content", platform: "LinkedIn", priority: "medium" });
+    }
+
+    if (day >= 1 && day <= 5) {
+      weekday.push({ task_title: "Log prior-day revenue ($0 OK pre-launch)", task_type: "revenue", platform: "Stripe", priority: "low" });
     }
 
     const launchPlan = LAUNCH_WEEK_PLAN[task_date];
@@ -280,10 +290,7 @@ export function generateDailyTasks(fromDate = "2026-06-23", toDate = "2026-07-28
 export const TODAY_CHECKLIST = [
   { task_title: "30 min Reddit/community help", task_type: "community", platform: "Reddit", priority: "high" },
   { task_title: "30 min Facebook group engagement", task_type: "community", platform: "Facebook", priority: "high" },
-  { task_title: "Publish 1 X post", task_type: "content", platform: "X", priority: "high" },
-  { task_title: "Publish LinkedIn or founder post (Mon/Wed/Fri)", task_type: "content", platform: "LinkedIn", priority: "medium" },
-  { task_title: "Review beta feedback", task_type: "product", platform: "App", priority: "high" },
-  { task_title: "Contact 2 creators or group admins", task_type: "outreach", platform: "All", priority: "medium" },
+  { task_title: "X marketing post (parenting angle — not vibe-coding)", task_type: "content", platform: "X", priority: "high" },
+  { task_title: "Micro-beta: chase 1 testimonial quote (≤25 parents)", task_type: "product", platform: "App", priority: "high" },
   { task_title: "Log daily metrics", task_type: "metrics", platform: "Dashboard", priority: "high" },
-  { task_title: "Log prior-day revenue", task_type: "revenue", platform: "Stripe", priority: "medium" },
 ].map((t) => enrichTask(t));

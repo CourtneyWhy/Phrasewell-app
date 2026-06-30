@@ -21,12 +21,14 @@ Generate today's top 5 tasks, posts to publish, communities to engage, creators 
     output: "X post, LinkedIn, Facebook group, Reddit comment, TikTok caption, Instagram caption, blog outline, Canva image prompt",
     template: `Repurpose this Phrasewell moment card into multi-platform content.
 
+Gotcha pitch (use in every piece): Kids melting down. Tap the behavior. Get words to say instantly.
+
 Category: [category]
 Behavior: [behavior]
 Say this: [script]
 Helpful note: [explanation]
 
-Output: X post, LinkedIn post, Facebook group version, Reddit comment, TikTok caption, Instagram caption, blog outline, Canva image prompt.`,
+Output: X marketing post (parenting angle), TikTok/IG 5-slide slideshow script, LinkedIn post, Facebook group version, Reddit comment, Canva slide text, CapCut voiceover script.`,
   },
   {
     name: "Community Research Assistant",

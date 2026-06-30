@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { growthFetch } from "@/app/lib/growth/client";
 import type { DailyPlaybook } from "@/app/lib/growth/daily-playbooks";
 import { getTaskGuide } from "@/app/lib/growth/task-guides";
+import { GOTCHA_PITCH } from "@/app/lib/growth/launch-strategy";
 import type { GrowthDailyTask, TaskStatus } from "@/app/lib/growth/types";
-import { BigCheckbox, EmptyState } from "./shared";
+import { BigCheckbox, CopyBtn, EmptyState } from "./shared";
 
 const TASK_STATUSES: { value: TaskStatus; label: string }[] = [
   { value: "not_started", label: "Not started" },
@@ -82,11 +83,20 @@ export function TodayTab({
 
   return (
     <section>
+      <div className="growth-card growth-card-accent">
+        <h2>Gotcha pitch</h2>
+        <p className="growth-gotcha-pitch">{GOTCHA_PITCH}</p>
+        <CopyBtn text={GOTCHA_PITCH} label="Copy pitch" />
+        <button type="button" className="growth-btn growth-btn-secondary growth-btn-sm" style={{ marginTop: 8 }} onClick={() => onGoToTab("tools")}>
+          Open Tools & Plan →
+        </button>
+      </div>
+
       <div className="growth-card growth-card-muted">
         <h2>Start here</h2>
         <p className="growth-muted">
-          Generate tasks, then work top to bottom. Each task has a big button to the right tab + numbered steps.
-          Anyone helping you can follow the steps without asking questions.
+          Accelerated launch — micro-beta ≤25 parents only. Waitlist sees script cards, not app login.
+          Batch emails Mondays + social Saturdays when you have time. Skip tasks on hard days — Buffer carries you.
         </p>
         <div className="growth-playbook-actions">
           <button
