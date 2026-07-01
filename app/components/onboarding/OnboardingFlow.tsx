@@ -236,7 +236,10 @@ export function OnboardingFlow() {
         {step === INTRO_SLIDES.length && (
           <>
             <h1 className="font-heading onboarding-title">About you</h1>
-            <p className="onboarding-hint">We use this to personalize scripts. Your email is saved to your account.</p>
+            <p className="onboarding-hint">
+              We use this to personalize scripts. Your email is saved to your account.
+              Emails from us sometimes land in spam. Mark Phrasewell as not spam if you had trouble signing in.
+            </p>
             <label className="onboarding-label">Email</label>
             <input className="onboarding-input" value={email} readOnly aria-readonly />
             <label className="onboarding-label" htmlFor="ob-first">

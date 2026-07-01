@@ -1,0 +1,45 @@
+Paste into Supabase → Authentication → Emails → Templates
+
+Optional: Authentication → Providers → Email → turn OFF "Confirm email"
+to send only the magic link (one email). Keep it ON if you want the welcome email first.
+
+--- Confirm sign up ---
+
+Subject:
+Thanks for joining the Phrasewell beta
+
+Body:
+<p>Hi there,</p>
+
+<p>Thank you for signing up to test Phrasewell.</p>
+
+<p>I'm Courtney, a parent who built this for moments when you don't know what to say or do. Phrasewell gives you clear words and steps when kids are struggling.</p>
+
+<p>We're in a small beta with a handful of families. Your honest feedback helps us know what works before we open to more parents. Use the app in real moments. Tell us what helped and what didn't.</p>
+
+<p><strong>Your sign-in link is coming in a separate email</strong> in the next minute or two. Check your inbox and <strong>spam or promotions folder</strong> for a message with "Sign in to Phrasewell" in the subject.</p>
+
+<p>If nothing arrives within 5 minutes, try signing in again at phrasewell.net/app/login or reply to Courtney.</p>
+
+<p>Glad you're here,<br>Courtney<br>Phrasewell</p>
+
+--- Magic link ---
+
+Subject:
+Sign in to Phrasewell
+
+Body:
+<p>Hi there,</p>
+
+<p>Tap below to sign in to Phrasewell. This link works once and expires in about an hour.</p>
+
+<p><a href="{{ .ConfirmationURL }}">Sign in to Phrasewell</a></p>
+
+<p>If the button doesn't work, copy this link into <strong>Safari or Chrome</strong> on the same device you used to request sign-in:</p>
+<p>{{ .ConfirmationURL }}</p>
+
+<p>Didn't expect this email? You can ignore it.</p>
+
+<p>Thank you for testing with us. Your feedback shapes what we build next.</p>
+
+<p>Courtney<br>Phrasewell</p>

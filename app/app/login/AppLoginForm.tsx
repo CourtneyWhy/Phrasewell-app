@@ -183,7 +183,8 @@ export default function AppLoginForm({ betaGate = true }: { betaGate?: boolean }
               Sign in with email
             </h1>
             <p style={{ fontSize: 14, color: "var(--muted)", marginTop: 0, lineHeight: 1.5 }}>
-              We&apos;ll email you a magic link. Your profile and kids save to your account — even if you delete the app later.
+              We&apos;ll email you a sign-in link. Your profile and kids save to your account.
+              Check spam if it doesn&apos;t arrive within a few minutes.
             </p>
             <form onSubmit={handleEmailSubmit} style={{ marginTop: 20 }}>
               <label className="onboarding-label" htmlFor="login-email">
@@ -212,10 +213,13 @@ export default function AppLoginForm({ betaGate = true }: { betaGate?: boolean }
               Check your email
             </h1>
             <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.6 }}>
-              We sent a sign-in email to <strong>{email}</strong>. Tap the magic link in the email to sign in.
+              We sent email to <strong>{email}</strong>. You may get two messages: a welcome note first, then your sign-in link.
             </p>
             <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 12, lineHeight: 1.5 }}>
-              Open the link in <strong>Safari</strong> or <strong>Chrome</strong> on this device — not the Gmail/Outlook preview.
+              <strong>Check spam and promotions.</strong> Mark Phrasewell as not spam so the sign-in link gets through.
+            </p>
+            <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 12, lineHeight: 1.5 }}>
+              Tap the sign-in link in <strong>Safari</strong> or <strong>Chrome</strong> on this device. Not the Gmail or Outlook preview.
             </p>
             <details style={{ marginTop: 20, fontSize: 14 }}>
               <summary style={{ cursor: "pointer", color: "var(--text)" }}>
