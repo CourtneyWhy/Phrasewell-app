@@ -153,11 +153,10 @@ export function getTaskGuide(task: TaskLike): TaskGuide {
       tabLabel: "Outreach",
       minutes: 15,
       steps: [
-        "Copy the text script below. Replace [name] with their first name.",
-        "Replace [paste your password] with your beta password (Vercel → Settings → Environment Variables).",
+        "Copy the text script below — it's ready to send as-is (password is included).",
         "Send by text to 1–3 people from your list — start with someone you know well (spouse counts as tester #1).",
         "Open Outreach tab → Log outreach for each person: who, Text/SMS, paste what you sent, status Sent.",
-        "Remind them to save phrasewell.net/app/login to their home screen and use Was this helpful? after they try a script.",
+        "Remind them to tap \"Was this helpful?\" after they try a script.",
         "Do not post the login link in groups or Reddit yet.",
       ],
       doneWhen: "At least 1 personal text sent and logged in Outreach.",
