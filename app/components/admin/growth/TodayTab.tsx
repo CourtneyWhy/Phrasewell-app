@@ -97,7 +97,7 @@ export function TodayTab({
           {phase.id === "prep" ? (
             <>
               {" "}
-              <strong>You are here:</strong> responding in communities and growing waitlist. Beta feedback tasks do not apply until you email handpicked parents.
+              <strong>You are here:</strong> communities + waitlist. Invite people you know when login works. Skip influencer outreach for now.
             </>
           ) : null}
         </p>

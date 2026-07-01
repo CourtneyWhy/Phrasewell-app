@@ -127,6 +127,24 @@ export function getTaskGuide(task: TaskLike): TaskGuide {
     };
   }
 
+  if (titleHas(task, "handpicked beta", "invite 1") || titleHas(task, "list 5 parents")) {
+    return {
+      tabId: "outreach",
+      tabLabel: "Outreach",
+      minutes: 20,
+      steps: [
+        "Open Outreach tab. Add a row for each person: name, text or email, status Not sent.",
+        "Start with people you know: spouse, foster parent friend, kinship caregiver in your network.",
+        "Send a personal message: you're testing Phrasewell and want honest feedback in real moments.",
+        "Include: phrasewell.net/app/login, beta password, and ask them to check spam for the sign-in email.",
+        "Do not post the app link in Facebook groups or Reddit yet. Handpicked only.",
+        "Goal this week: 3–5 inner circle testers, then grow toward 15–25 by July 13.",
+      ],
+      doneWhen: "At least 1 handpicked invite sent to someone you know, or 5 names listed in Outreach.",
+      tip: "Your husband counts as tester #1. Friends and foster parents you trust are perfect before strangers.",
+    };
+  }
+
   if (titleHas(task, "micro-beta", "testimonial", "chase 1") || (task.task_type === "product" && titleHas(task, "micro"))) {
     return {
       tabId: "feedback",

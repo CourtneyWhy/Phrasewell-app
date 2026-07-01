@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { exportCsv } from "@/app/lib/growth/client";
 
 export function StatusBadge({ status }: { status: string }) {
@@ -92,11 +93,20 @@ export function FilterBar({
   );
 }
 
-export function EmptyState({ title, body }: { title: string; body: string }) {
+export function EmptyState({
+  title,
+  body,
+  action,
+}: {
+  title: string;
+  body: string;
+  action?: ReactNode;
+}) {
   return (
     <div className="growth-empty">
       <h3>{title}</h3>
       <p>{body}</p>
+      {action ? <div style={{ marginTop: 12 }}>{action}</div> : null}
     </div>
   );
 }

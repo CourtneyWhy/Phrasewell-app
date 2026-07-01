@@ -204,20 +204,28 @@ export function GrowthDashboard() {
     if (tab === "today") loadStats();
   }, [tab, platform, status, priority, filterDate, loadTable, loadFeedback, loadStats]);
 
-  async function runSeed() {
+  async function runSeed(only?: "creators" | "communities" | "all") {
     setMessage(null);
     try {
-      const res = await growthFetch<{ ok: boolean; communities: number; creators: number; message?: string }>(
-        "/api/admin/growth/seed",
-        { method: "POST" },
-      );
+      const res = await growthFetch<{
+        ok: boolean;
+        communities: number;
+        creators: number;
+        message?: string;
+        creatorCount?: number;
+        error?: string;
+      }>("/api/admin/growth/seed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(only && only !== "all" ? { only } : {}),
+      });
       setMessage(
         res.message ??
           `Seeded ${res.communities} communities, ${res.creators} creators, content + tasks.`,
       );
       loadStats();
-      if (tab === "creators") loadTable("creators", setCreators as (r: never[]) => void);
-      if (tab === "communities") loadTable("communities", setCommunities as (r: never[]) => void);
+      loadTable("creators", setCreators as (r: never[]) => void);
+      loadTable("communities", setCommunities as (r: never[]) => void);
     } catch (e) {
       setMessage(e instanceof Error ? e.message : "Seed failed");
     }
@@ -330,7 +338,7 @@ export function GrowthDashboard() {
           <p className="growth-subtitle">Founder LTD launch {LAUNCH_DATE} · {GOTCHA_PITCH}</p>
         </div>
         <div className="growth-header-actions">
-          <button type="button" className="growth-btn growth-btn-secondary growth-btn-sm" onClick={runSeed}>
+          <button type="button" className="growth-btn growth-btn-secondary growth-btn-sm" onClick={() => runSeed("all")}>
             Load seed data
           </button>
           <button
@@ -537,7 +545,16 @@ export function GrowthDashboard() {
               />
             }
             emptyTitle="No creators yet"
-            emptyBody='Click "Load seed data" in the top-right header. It fills Instagram, podcast, and LinkedIn targets. Safe to click again if only communities loaded before.'
+            emptyBody='Click "Load creator list" below. If it fails, run migration 004_growth_schema.sql in Supabase first.'
+            emptyAction={
+              <button
+                type="button"
+                className="growth-btn growth-btn-primary growth-btn-sm"
+                onClick={() => runSeed("creators")}
+              >
+                Load creator list
+              </button>
+            }
             headers={["Name", "Platform", "Handle", "Status", "Priority", "Notes"]}
             renderRow={(row) => {
               const c = row as unknown as GrowthCreator;
@@ -1068,6 +1085,7 @@ function CrudSection({
   filters,
   emptyTitle,
   emptyBody,
+  emptyAction,
   headers,
   renderRow,
 }: {
@@ -1078,6 +1096,7 @@ function CrudSection({
   filters: React.ReactNode;
   emptyTitle: string;
   emptyBody: string;
+  emptyAction?: React.ReactNode;
   headers: string[];
   renderRow: (row: Record<string, unknown>) => React.ReactNode;
 }) {
@@ -1091,7 +1110,7 @@ function CrudSection({
         {filters}
         {loading ? <p className="growth-muted">Loading…</p> : null}
         {!loading && !rows.length ? (
-          <EmptyState title={emptyTitle} body={emptyBody} />
+          <EmptyState title={emptyTitle} body={emptyBody} action={emptyAction} />
         ) : (
           <div className="growth-table-wrap">
             <table className="growth-table">
