@@ -1403,11 +1403,28 @@ html {
   font-size: 13px;
 }
 
-.growth-form-grid input {
-  height: 40px;
+.growth-form-grid input,
+.growth-form-grid select,
+.growth-form-grid textarea {
   padding: 0 10px;
   border: 1px solid var(--border);
   border-radius: 8px;
+  font: inherit;
+}
+
+.growth-form-grid input,
+.growth-form-grid select {
+  height: 40px;
+}
+
+.growth-form-grid textarea {
+  min-height: 100px;
+  padding: 10px;
+  resize: vertical;
+}
+
+.growth-form-grid .growth-form-span-all {
+  grid-column: 1 / -1;
 }
 
 .growth-bars {

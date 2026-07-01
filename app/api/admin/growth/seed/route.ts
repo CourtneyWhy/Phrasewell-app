@@ -7,14 +7,70 @@ import {
   generateDailyTasks,
 } from "@/app/lib/growth/seed-data";
 
-type SeedBody = { only?: "creators" | "communities" | "content" | "tasks" | "all" };
+type SeedBody = {
+  only?: "creators" | "communities" | "content" | "tasks" | "all";
+  force?: boolean;
+};
 
-function tableError(label: string, error: { message: string } | null) {
+async function readCounts(db: NonNullable<ReturnType<typeof growthDb>>) {
+  const [communitiesRes, creatorsRes, contentRes, tasksRes] = await Promise.all([
+    db.from("growth_communities").select("id", { count: "exact", head: true }),
+    db.from("growth_creators").select("id", { count: "exact", head: true }),
+    db.from("growth_content_calendar").select("id", { count: "exact", head: true }),
+    db.from("growth_daily_tasks").select("id", { count: "exact", head: true }),
+  ]);
+
+  return {
+    errors: {
+      communities: communitiesRes.error?.message ?? null,
+      creators: creatorsRes.error?.message ?? null,
+      content: contentRes.error?.message ?? null,
+      tasks: tasksRes.error?.message ?? null,
+    },
+    counts: {
+      communities: communitiesRes.count ?? 0,
+      creators: creatorsRes.count ?? 0,
+      content: contentRes.count ?? 0,
+      tasks: tasksRes.count ?? 0,
+    },
+  };
+}
+
+function tableError(label: string, error: string | null) {
   if (!error) return null;
-  if (error.message.includes("does not exist") || error.message.includes("schema cache")) {
+  if (error.includes("does not exist") || error.includes("schema cache")) {
     return `${label} table missing. Run supabase/migrations/004_growth_schema.sql in Supabase SQL Editor.`;
   }
-  return `${label}: ${error.message}`;
+  return `${label}: ${error}`;
+}
+
+function formatCounts(counts: { communities: number; creators: number; content: number; tasks: number }) {
+  return `Database now has ${counts.communities} communities, ${counts.creators} creators, ${counts.content} content items, ${counts.tasks} tasks.`;
+}
+
+export async function GET() {
+  const db = growthDb();
+  if (!db) {
+    return NextResponse.json({ error: "Database not configured." }, { status: 503 });
+  }
+
+  const { errors, counts } = await readCounts(db);
+  const tableErrors = [
+    tableError("growth_communities", errors.communities),
+    tableError("growth_creators", errors.creators),
+    tableError("growth_content_calendar", errors.content),
+    tableError("growth_daily_tasks", errors.tasks),
+  ].filter(Boolean);
+
+  return NextResponse.json({
+    ok: tableErrors.length === 0,
+    counts,
+    errors: tableErrors,
+    hint:
+      counts.creators === 0
+        ? "Creators table is empty. Use Load creator list on the Creators tab."
+        : "Creators exist in the database. If the tab is empty, refresh the page or clear filters.",
+  });
 }
 
 export async function POST(request: Request) {
@@ -31,53 +87,54 @@ export async function POST(request: Request) {
   }
 
   const only = body.only ?? "all";
+  const force = body.force === true;
 
-  const [communitiesRes, creatorsRes, contentRes, tasksRes] = await Promise.all([
-    db.from("growth_communities").select("id", { count: "exact", head: true }),
-    db.from("growth_creators").select("id", { count: "exact", head: true }),
-    db.from("growth_content_calendar").select("id", { count: "exact", head: true }),
-    db.from("growth_daily_tasks").select("id", { count: "exact", head: true }),
-  ]);
+  const { errors, counts: before } = await readCounts(db);
 
   const tableErrors = [
-    tableError("growth_communities", communitiesRes.error),
-    tableError("growth_creators", creatorsRes.error),
-    tableError("growth_content_calendar", contentRes.error),
-    tableError("growth_daily_tasks", tasksRes.error),
+    tableError("growth_communities", errors.communities),
+    tableError("growth_creators", errors.creators),
+    tableError("growth_content_calendar", errors.content),
+    tableError("growth_daily_tasks", errors.tasks),
   ].filter(Boolean);
 
   if (tableErrors.length > 0) {
     return NextResponse.json({ error: tableErrors.join(" ") }, { status: 500 });
   }
 
-  const communityCount = communitiesRes.count ?? 0;
-  const creatorCount = creatorsRes.count ?? 0;
-  const contentCount = contentRes.count ?? 0;
-  const taskCount = tasksRes.count ?? 0;
-
   const wantCommunities = only === "all" || only === "communities";
   const wantCreators = only === "all" || only === "creators";
   const wantContent = only === "all" || only === "content";
   const wantTasks = only === "all" || only === "tasks";
 
-  const communities = wantCommunities && communityCount === 0 ? getSeedCommunities() : [];
-  const creators = wantCreators && creatorCount === 0 ? getSeedCreators() : [];
-  const content = wantContent && contentCount === 0 ? generateContentCalendar() : [];
-  const tasks = wantTasks && taskCount === 0 ? generateDailyTasks() : [];
+  if (force && wantCreators && before.creators > 0) {
+    const { error: delErr } = await db.from("growth_creators").delete().gte("created_at", "1970-01-01");
+    if (delErr) {
+      return NextResponse.json({ error: `Could not clear creators: ${delErr.message}` }, { status: 500 });
+    }
+  }
+
+  const communities =
+    wantCommunities && (before.communities === 0 || (force && only === "communities"))
+      ? getSeedCommunities()
+      : [];
+  const creators =
+    wantCreators && (before.creators === 0 || (force && only === "creators"))
+      ? getSeedCreators()
+      : [];
+  const content =
+    wantContent && (before.content === 0 || (force && only === "content"))
+      ? generateContentCalendar()
+      : [];
+  const tasks =
+    wantTasks && (before.tasks === 0 || (force && only === "tasks")) ? generateDailyTasks() : [];
 
   if (!communities.length && !creators.length && !content.length && !tasks.length) {
-    const hint =
-      only === "creators" && creatorCount > 0
-        ? `${creatorCount} creators already in database.`
-        : "Seed data already loaded for the selected tables.";
     return NextResponse.json({
       ok: true,
-      message: hint,
-      communities: 0,
-      creators: 0,
-      content: 0,
-      tasks: 0,
-      creatorCount,
+      inserted: { communities: 0, creators: 0, content: 0, tasks: 0 },
+      counts: before,
+      message: `Nothing new inserted. ${formatCounts(before)}`,
     });
   }
 
@@ -94,20 +151,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: err.error.message }, { status: 500 });
   }
 
+  const { counts: after } = await readCounts(db);
+
   return NextResponse.json({
     ok: true,
-    communities: communities.length,
-    creators: creators.length,
-    content: content.length,
-    tasks: tasks.length,
-    creatorCount: creatorCount + creators.length,
+    inserted: {
+      communities: communities.length,
+      creators: creators.length,
+      content: content.length,
+      tasks: tasks.length,
+    },
+    counts: after,
     message: [
-      communities.length ? `${communities.length} communities` : null,
-      creators.length ? `${creators.length} creators` : null,
-      content.length ? `${content.length} content ideas` : null,
-      tasks.length ? `${tasks.length} daily tasks` : null,
+      communities.length ? `Added ${communities.length} communities` : null,
+      creators.length ? `Added ${creators.length} creators` : null,
+      content.length ? `Added ${content.length} content ideas` : null,
+      tasks.length ? `Added ${tasks.length} tasks` : null,
+      formatCounts(after),
     ]
       .filter(Boolean)
-      .join(", ") || "Nothing new to load",
+      .join(". "),
   });
 }

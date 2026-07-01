@@ -110,6 +110,27 @@ const OUTREACH_STATUSES = [
   { value: "closed", label: "Closed" },
 ];
 
+const OUTREACH_TARGET_TYPES = [
+  { value: "beta_invite", label: "Beta invite (parent you know)" },
+  { value: "group_admin", label: "Group admin" },
+  { value: "creator", label: "Creator / influencer" },
+  { value: "podcast", label: "Podcast" },
+  { value: "community", label: "Community member" },
+  { value: "other", label: "Other" },
+];
+
+const OUTREACH_PLATFORMS = [
+  "Email",
+  "Text / SMS",
+  "Instagram",
+  "Facebook",
+  "Reddit",
+  "X",
+  "LinkedIn",
+  "In person",
+  "Other",
+];
+
 function fmtMoney(n: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 }
@@ -204,28 +225,30 @@ export function GrowthDashboard() {
     if (tab === "today") loadStats();
   }, [tab, platform, status, priority, filterDate, loadTable, loadFeedback, loadStats]);
 
-  async function runSeed(only?: "creators" | "communities" | "all") {
+  async function runSeed(only?: "creators" | "communities" | "all", force = false) {
     setMessage(null);
     try {
       const res = await growthFetch<{
         ok: boolean;
-        communities: number;
-        creators: number;
+        inserted?: { communities: number; creators: number; content: number; tasks: number };
+        counts?: { communities: number; creators: number; content: number; tasks: number };
         message?: string;
-        creatorCount?: number;
-        error?: string;
       }>("/api/admin/growth/seed", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(only && only !== "all" ? { only } : {}),
+        body: JSON.stringify({
+          ...(only && only !== "all" ? { only } : {}),
+          ...(force ? { force: true } : {}),
+        }),
       });
-      setMessage(
-        res.message ??
-          `Seeded ${res.communities} communities, ${res.creators} creators, content + tasks.`,
-      );
+      setMessage(res.message ?? "Seed complete.");
       loadStats();
-      loadTable("creators", setCreators as (r: never[]) => void);
-      loadTable("communities", setCommunities as (r: never[]) => void);
+      if (tab === "creators" || only === "creators") {
+        await loadTable("creators", setCreators as (r: never[]) => void);
+      }
+      if (tab === "communities" || only === "communities" || only === "all") {
+        await loadTable("communities", setCommunities as (r: never[]) => void);
+      }
     } catch (e) {
       setMessage(e instanceof Error ? e.message : "Seed failed");
     }
@@ -281,6 +304,17 @@ export function GrowthDashboard() {
 
   const [metricForm, setMetricForm] = useState<Partial<GrowthMetricsDaily>>({ metric_date: todayIso });
   const [revenueForm, setRevenueForm] = useState<Partial<GrowthRevenueDaily>>({ revenue_date: todayIso });
+  const [outreachForm, setOutreachForm] = useState({
+    outreach_date: todayIso,
+    target_type: "beta_invite",
+    target_name: "",
+    platform: "Email",
+    url: "",
+    message: "",
+    status: "sent" as GrowthOutreach["status"],
+    follow_up_date: "",
+    notes: "",
+  });
 
   async function saveMetrics() {
     const body = { ...metricForm, metric_date: metricForm.metric_date ?? todayIso };
@@ -324,6 +358,52 @@ export function GrowthDashboard() {
     setMessage("Revenue logged.");
     loadTable("revenue", setRevenue as (r: never[]) => void);
     loadStats();
+  }
+
+  async function saveOutreach() {
+    const targetName = outreachForm.target_name.trim();
+    if (!targetName) {
+      setMessage("Enter who you contacted.");
+      return;
+    }
+
+    const body = {
+      outreach_date: outreachForm.outreach_date || todayIso,
+      target_type: outreachForm.target_type,
+      target_name: targetName,
+      platform: outreachForm.platform || null,
+      url: outreachForm.url.trim() || null,
+      message: outreachForm.message.trim() || null,
+      status: outreachForm.status,
+      follow_up_date: outreachForm.follow_up_date || null,
+      notes: outreachForm.notes.trim() || null,
+    };
+
+    try {
+      const res = await fetch("/api/admin/growth/outreach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Could not save outreach");
+
+      setMessage(`Logged outreach to ${targetName}.`);
+      setOutreachForm({
+        outreach_date: todayIso,
+        target_type: "beta_invite",
+        target_name: "",
+        platform: "Email",
+        url: "",
+        message: "",
+        status: "sent",
+        follow_up_date: "",
+        notes: "",
+      });
+      await loadTable("outreach", setOutreach as (r: never[]) => void);
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : "Could not save outreach");
+    }
   }
 
   const filteredLaunch = launchPhaseFilter
@@ -547,13 +627,22 @@ export function GrowthDashboard() {
             emptyTitle="No creators yet"
             emptyBody='Click "Load creator list" below. If it fails, run migration 004_growth_schema.sql in Supabase first.'
             emptyAction={
-              <button
-                type="button"
-                className="growth-btn growth-btn-primary growth-btn-sm"
-                onClick={() => runSeed("creators")}
-              >
-                Load creator list
-              </button>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  className="growth-btn growth-btn-primary growth-btn-sm"
+                  onClick={() => runSeed("creators")}
+                >
+                  Load creator list
+                </button>
+                <button
+                  type="button"
+                  className="growth-btn growth-btn-secondary growth-btn-sm"
+                  onClick={() => runSeed("creators", true)}
+                >
+                  Force reload creators
+                </button>
+              </div>
             }
             headers={["Name", "Platform", "Handle", "Status", "Priority", "Notes"]}
             renderRow={(row) => {
@@ -668,6 +757,126 @@ export function GrowthDashboard() {
 
         {tab === "outreach" && (
           <section>
+            <div className="growth-card">
+              <h2>Log outreach</h2>
+              <p className="growth-subtitle" style={{ marginTop: 0 }}>
+                Track beta invites, group admin asks, and creator messages as you send them.
+              </p>
+              <div className="growth-form-grid">
+                <label>
+                  Date
+                  <input
+                    type="date"
+                    value={outreachForm.outreach_date}
+                    onChange={(e) => setOutreachForm((f) => ({ ...f, outreach_date: e.target.value }))}
+                  />
+                </label>
+                <label>
+                  Type
+                  <select
+                    value={outreachForm.target_type}
+                    onChange={(e) => setOutreachForm((f) => ({ ...f, target_type: e.target.value }))}
+                  >
+                    {OUTREACH_TARGET_TYPES.map((t) => (
+                      <option key={t.value} value={t.value}>
+                        {t.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Who (name)
+                  <input
+                    type="text"
+                    placeholder="e.g. Sarah, r/Fosterparents mod"
+                    value={outreachForm.target_name}
+                    onChange={(e) => setOutreachForm((f) => ({ ...f, target_name: e.target.value }))}
+                  />
+                </label>
+                <label>
+                  Platform
+                  <select
+                    value={outreachForm.platform}
+                    onChange={(e) => setOutreachForm((f) => ({ ...f, platform: e.target.value }))}
+                  >
+                    {OUTREACH_PLATFORMS.map((p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Status
+                  <select
+                    value={outreachForm.status}
+                    onChange={(e) =>
+                      setOutreachForm((f) => ({ ...f, status: e.target.value as GrowthOutreach["status"] }))
+                    }
+                  >
+                    {OUTREACH_STATUSES.map((s) => (
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Follow-up date
+                  <input
+                    type="date"
+                    value={outreachForm.follow_up_date}
+                    onChange={(e) => setOutreachForm((f) => ({ ...f, follow_up_date: e.target.value }))}
+                  />
+                </label>
+                <label>
+                  Link (optional)
+                  <input
+                    type="url"
+                    placeholder="Profile, group, or thread URL"
+                    value={outreachForm.url}
+                    onChange={(e) => setOutreachForm((f) => ({ ...f, url: e.target.value }))}
+                  />
+                </label>
+                <label>
+                  Start from template
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      const key = e.target.value as keyof typeof OUTREACH_TEMPLATES;
+                      if (key && OUTREACH_TEMPLATES[key]) {
+                        setOutreachForm((f) => ({ ...f, message: OUTREACH_TEMPLATES[key] }));
+                      }
+                    }}
+                  >
+                    <option value="">—</option>
+                    <option value="groupAdmin">Group admin ask</option>
+                    <option value="creatorDm">Creator DM</option>
+                    <option value="podcastPitch">Podcast pitch</option>
+                  </select>
+                </label>
+                <label className="growth-form-span-all">
+                  Message
+                  <textarea
+                    placeholder="What you sent (or plan to send)"
+                    value={outreachForm.message}
+                    onChange={(e) => setOutreachForm((f) => ({ ...f, message: e.target.value }))}
+                  />
+                </label>
+                <label className="growth-form-span-all">
+                  Notes
+                  <textarea
+                    placeholder="Reply summary, next step, etc."
+                    value={outreachForm.notes}
+                    onChange={(e) => setOutreachForm((f) => ({ ...f, notes: e.target.value }))}
+                  />
+                </label>
+              </div>
+              <button type="button" className="growth-btn growth-btn-primary" onClick={saveOutreach}>
+                Save outreach
+              </button>
+            </div>
+
             <div className="growth-card growth-card-muted">
               <h3>Outreach templates</h3>
               <div className="growth-template-grid">
@@ -701,7 +910,7 @@ export function GrowthDashboard() {
                 />
               }
               emptyTitle="No outreach logged"
-              emptyBody="Add rows via Supabase or POST to the API as you send messages."
+              emptyBody='Use the "Log outreach" form above when you invite someone or send a message.'
               headers={["Date", "Target", "Type", "Platform", "Status", "Message"]}
               renderRow={(row) => {
                 const o = row as unknown as GrowthOutreach;
