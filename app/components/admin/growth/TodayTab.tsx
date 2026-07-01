@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { growthFetch } from "@/app/lib/growth/client";
 import type { DailyPlaybook } from "@/app/lib/growth/daily-playbooks";
+import { getTodayPlaybooks } from "@/app/lib/growth/daily-playbooks";
 import { getTaskGuide } from "@/app/lib/growth/task-guides";
 import { GOTCHA_PITCH } from "@/app/lib/growth/launch-strategy";
 import { getPhaseForDate } from "@/app/lib/growth/launch-phases";
@@ -83,6 +84,9 @@ export function TodayTab({
   }
 
   const phase = getPhaseForDate(todayIso);
+  const weekdayPlaybooks =
+    playbooks.length > 0 ? playbooks : getTodayPlaybooks(todayIso);
+  const focusPlaybook = weekdayPlaybooks.find((p) => p.id !== "daily-klaviyo-check");
 
   return (
     <section>
@@ -184,6 +188,41 @@ export function TodayTab({
         ) : null}
       </div>
 
+      {focusPlaybook ? (
+        <div className="growth-card growth-card-accent">
+          <h2>Today&apos;s weekly playbook</h2>
+          <p className="growth-muted" style={{ marginBottom: 12 }}>
+            Your focus tab today is <strong>{focusPlaybook.dashboardTab}</strong>. Work through these steps, then use the checklist below.
+          </p>
+          <h3 style={{ fontSize: "1rem", margin: "0 0 8px" }}>{focusPlaybook.title}</h3>
+          <ol className="growth-playbook-steps">
+            {focusPlaybook.steps.map((s) => (
+              <li key={s.step}>
+                <strong>[{s.where}]</strong> {s.action}
+              </li>
+            ))}
+          </ol>
+          <button
+            type="button"
+            className="growth-btn growth-btn-secondary growth-btn-sm"
+            style={{ marginTop: 12 }}
+            onClick={() => {
+              const tab = focusPlaybook.dashboardTab.toLowerCase();
+              if (tab.includes("email")) onGoToTab("email");
+              else if (tab.includes("community")) onGoToTab("communities");
+              else if (tab.includes("content engine")) onGoToTab("content-engine");
+              else if (tab.includes("outreach")) onGoToTab("outreach");
+              else if (tab.includes("feedback")) onGoToTab("feedback");
+              else if (tab.includes("creator")) onGoToTab("creators");
+              else if (tab.includes("launch")) onGoToTab("launch");
+              else onGoToTab("today");
+            }}
+          >
+            Open {focusPlaybook.dashboardTab} →
+          </button>
+        </div>
+      ) : null}
+
       <div className="growth-card" ref={checklistRef}>
         <h2>Today&apos;s checklist {tasks.length > 0 ? `(${tasks.length})` : ""}</h2>
         <p className="growth-muted">Work top to bottom. Each task shows steps + a button to the tab with templates and lists.</p>
@@ -262,21 +301,23 @@ export function TodayTab({
         )}
       </div>
 
-      {playbooks.length > 0 ? (
+      {weekdayPlaybooks.length > 1 ? (
         <details className="growth-card">
-          <summary className="growth-weekday-playbook-summary">Optional: today&apos;s weekday focus</summary>
-          {playbooks.map((pb) => (
-            <div key={pb.id} className="growth-weekday-playbook">
-              <h3>{pb.title}</h3>
-              <ol className="growth-playbook-steps">
-                {pb.steps.map((s) => (
-                  <li key={s.step}>
-                    <strong>[{s.where}]</strong> {s.action}
-                  </li>
-                ))}
-              </ol>
-            </div>
-          ))}
+          <summary className="growth-weekday-playbook-summary">Also today: Klaviyo daily sync steps</summary>
+          {weekdayPlaybooks
+            .filter((p) => p.id === "daily-klaviyo-check")
+            .map((pb) => (
+              <div key={pb.id} className="growth-weekday-playbook">
+                <h3>{pb.title}</h3>
+                <ol className="growth-playbook-steps">
+                  {pb.steps.map((s) => (
+                    <li key={s.step}>
+                      <strong>[{s.where}]</strong> {s.action}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ))}
         </details>
       ) : null}
     </section>

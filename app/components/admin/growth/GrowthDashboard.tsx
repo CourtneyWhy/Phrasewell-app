@@ -207,12 +207,17 @@ export function GrowthDashboard() {
   async function runSeed() {
     setMessage(null);
     try {
-      const res = await growthFetch<{ ok: boolean; communities: number; creators: number }>(
+      const res = await growthFetch<{ ok: boolean; communities: number; creators: number; message?: string }>(
         "/api/admin/growth/seed",
         { method: "POST" },
       );
-      setMessage(`Seeded ${res.communities} communities, ${res.creators} creators, content + tasks.`);
+      setMessage(
+        res.message ??
+          `Seeded ${res.communities} communities, ${res.creators} creators, content + tasks.`,
+      );
       loadStats();
+      if (tab === "creators") loadTable("creators", setCreators as (r: never[]) => void);
+      if (tab === "communities") loadTable("communities", setCommunities as (r: never[]) => void);
     } catch (e) {
       setMessage(e instanceof Error ? e.message : "Seed failed");
     }
@@ -532,7 +537,7 @@ export function GrowthDashboard() {
               />
             }
             emptyTitle="No creators yet"
-            emptyBody="Load seed data for Instagram, TikTok, podcast, and LinkedIn targets."
+            emptyBody='Click "Load seed data" in the top-right header. It fills Instagram, podcast, and LinkedIn targets. Safe to click again if only communities loaded before.'
             headers={["Name", "Platform", "Handle", "Status", "Priority", "Notes"]}
             renderRow={(row) => {
               const c = row as unknown as GrowthCreator;

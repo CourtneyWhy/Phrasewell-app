@@ -13,24 +13,39 @@ export async function POST() {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
   }
 
-  const { count: communityCount } = await db
-    .from("growth_communities")
-    .select("id", { count: "exact", head: true });
+  const [communitiesRes, creatorsRes, contentRes, tasksRes] = await Promise.all([
+    db.from("growth_communities").select("id", { count: "exact", head: true }),
+    db.from("growth_creators").select("id", { count: "exact", head: true }),
+    db.from("growth_content_calendar").select("id", { count: "exact", head: true }),
+    db.from("growth_daily_tasks").select("id", { count: "exact", head: true }),
+  ]);
 
-  if ((communityCount ?? 0) > 0) {
-    return NextResponse.json({ error: "Seed data already exists. Clear tables first if you want to re-seed." }, { status: 409 });
+  const communityCount = communitiesRes.count ?? 0;
+  const creatorCount = creatorsRes.count ?? 0;
+  const contentCount = contentRes.count ?? 0;
+  const taskCount = tasksRes.count ?? 0;
+
+  const communities = communityCount === 0 ? getSeedCommunities() : [];
+  const creators = creatorCount === 0 ? getSeedCreators() : [];
+  const content = contentCount === 0 ? generateContentCalendar() : [];
+  const tasks = taskCount === 0 ? generateDailyTasks() : [];
+
+  if (!communities.length && !creators.length && !content.length && !tasks.length) {
+    return NextResponse.json({
+      ok: true,
+      message: "Seed data already loaded. Communities, creators, content, and tasks all exist.",
+      communities: 0,
+      creators: 0,
+      content: 0,
+      tasks: 0,
+    });
   }
 
-  const communities = getSeedCommunities();
-  const creators = getSeedCreators();
-  const content = generateContentCalendar();
-  const tasks = generateDailyTasks();
-
   const results = await Promise.all([
-    db.from("growth_communities").insert(communities),
-    db.from("growth_creators").insert(creators),
-    db.from("growth_content_calendar").insert(content),
-    db.from("growth_daily_tasks").insert(tasks),
+    communities.length ? db.from("growth_communities").insert(communities) : Promise.resolve({ error: null }),
+    creators.length ? db.from("growth_creators").insert(creators) : Promise.resolve({ error: null }),
+    content.length ? db.from("growth_content_calendar").insert(content) : Promise.resolve({ error: null }),
+    tasks.length ? db.from("growth_daily_tasks").insert(tasks) : Promise.resolve({ error: null }),
   ]);
 
   const err = results.find((r) => r.error);
@@ -45,5 +60,13 @@ export async function POST() {
     creators: creators.length,
     content: content.length,
     tasks: tasks.length,
+    message: [
+      communities.length ? `${communities.length} communities` : null,
+      creators.length ? `${creators.length} creators` : null,
+      content.length ? `${content.length} content ideas` : null,
+      tasks.length ? `${tasks.length} daily tasks` : null,
+    ]
+      .filter(Boolean)
+      .join(", ") || "Nothing new to load",
   });
 }
