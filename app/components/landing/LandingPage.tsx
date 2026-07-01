@@ -1,7 +1,7 @@
 import { LandingHeader } from "@/app/components/landing/LandingHeader";
+import { LandingFooter } from "@/app/components/landing/LandingFooter";
 import { DemoPhraseCard } from "@/app/components/landing/DemoPhraseCard";
 import { BetaForm } from "@/app/components/landing/BetaForm";
-import { LandingLogo } from "@/app/components/landing/LandingLogo";
 
 const THEORY_CARDS = [
   "When your child is screaming",
@@ -205,23 +205,7 @@ export function LandingPage() {
         </section>
       </main>
 
-      <footer className="landing-footer">
-        <div className="landing-container">
-          <p className="landing-disclaimer">
-            Phrasewell offers quick phrases for tough parenting moments. It is not therapy, medical
-            advice, legal advice, or a diagnosis. If anyone may be seriously hurt, seek immediate
-            local emergency support.
-          </p>
-          <div className="landing-footer-bar">
-            <a href="#" className="landing-logo landing-footer-logo" aria-label="Phrasewell home">
-              <LandingLogo iconSize={34} compact />
-            </a>
-            <p className="landing-footer-tagline">
-              Quick phrases for tough moments. Not therapy or a diagnosis.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
   );
 }
