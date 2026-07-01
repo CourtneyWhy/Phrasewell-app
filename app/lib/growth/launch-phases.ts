@@ -2,6 +2,13 @@ export const LAUNCH_DATE = "2026-07-28";
 
 export const LAUNCH_PHASES = [
   {
+    id: "prep",
+    name: "Pre-launch: Waitlist + presence",
+    start: "2026-06-01",
+    end: "2026-06-30",
+    goal: "Show up in communities, grow waitlist, link in bio. No beta invites until you are ready.",
+  },
+  {
     id: "beta",
     name: "Micro-Beta + Waitlist (accelerated)",
     start: "2026-07-01",
@@ -164,6 +171,14 @@ const PHASE_GUIDANCE: Record<
   string,
   { tasks: string; content: string; community: string; creator: string; email: string; metrics: string }
 > = {
+  prep: {
+    tasks: "Reddit + FB helpful comments, daily X post, waitlist link in bio. No beta invites until app is ready.",
+    content: "Script card screenshots on social. Tease the problem, not app login.",
+    community: "Respond to posts. Build trust. Do not share app URL widely yet.",
+    creator: "You = UGC for now.",
+    email: "Set up Klaviyo when ready. Waitlist welcome can wait until you have signups.",
+    metrics: "Waitlist signups, profile link clicks, comments left",
+  },
   beta: {
     tasks: "Reddit + FB help, daily X marketing post, micro-beta testimonial chase, 2 reels/week, log metrics",
     content: "Script card screenshots + faceless reels — tease, no app access for public",
@@ -207,7 +222,10 @@ const PHASE_GUIDANCE: Record<
 };
 
 export function getPhaseForDate(iso: string) {
-  return LAUNCH_PHASES.find((p) => iso >= p.start && iso <= p.end) ?? LAUNCH_PHASES[LAUNCH_PHASES.length - 1];
+  const match = LAUNCH_PHASES.find((p) => iso >= p.start && iso <= p.end);
+  if (match) return match;
+  if (iso < LAUNCH_PHASES[0].start) return LAUNCH_PHASES[0];
+  return LAUNCH_PHASES[LAUNCH_PHASES.length - 1];
 }
 
 export function getLaunchCalendarDays(fromIso: string, toIso = "2026-10-31") {

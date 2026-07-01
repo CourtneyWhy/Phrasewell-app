@@ -133,14 +133,15 @@ export function getTaskGuide(task: TaskLike): TaskGuide {
       tabLabel: "Beta Feedback",
       minutes: 15,
       steps: [
+        "Skip this task if you have not emailed handpicked beta parents yet.",
         "You should have ≤25 micro-beta parents total — not open to everyone.",
         "Open Beta Feedback → read latest. DM 1 beta parent who had a good experience.",
         "Ask: 'Can I use one sentence about how it helped?' (written quote is enough.)",
         "Flag can_use_publicly on strong quotes in Beta Feedback tab.",
-        "If under 10 quotes collected, prioritize this over new outreach.",
+        "If under 10 quotes collected after invites are out, prioritize this over new outreach.",
       ],
-      doneWhen: "1 testimonial chase sent OR 1 quote flagged for landing page.",
-      tip: "Waitlist does NOT get app access — only these ≤25 parents.",
+      doneWhen: "1 testimonial chase sent OR skipped because no beta invites yet.",
+      tip: "Waitlist does NOT get app access — only handpicked parents you email directly.",
     };
   }
 

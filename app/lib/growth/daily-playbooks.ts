@@ -59,17 +59,14 @@ export const TAB_WEEKLY_PLAYBOOKS: Record<number, DailyPlaybook> = {
     ],
   },
   4: {
-    id: "thursday-creators-feedback",
-    title: "Thursday — Creators, feedback, email analytics",
-    dashboardTab: "Beta Feedback",
-    klaviyoLocation: "Klaviyo → Lists & Segments",
+    id: "thursday-outreach-prep",
+    title: "Thursday — Outreach prep (pre-beta)",
+    dashboardTab: "Outreach",
     steps: [
-      { step: 1, where: "Beta Feedback", action: "Review new feedback. Flag can_use_publicly on any strong testimonial." },
-      { step: 2, where: "Creators", action: "Update contact_status on 2 creators you contacted. Add follow-up notes." },
-      { step: 3, where: "Email Marketing → Segments", action: "Sync segment counts from Klaviyo into dashboard." },
-      { step: 4, where: "Email Marketing → Analytics", action: "Note top + worst email this week. Log in analytics tab." },
-      { step: 5, where: "Klaviyo", action: "Clean list: suppress bounces + 90-day non-openers (if list > 100)." },
-      { step: 6, where: "Email Marketing → Flows", action: "If Testimonial Candidates segment has new members, verify Testimonial Request flow is Live." },
+      { step: 1, where: "Outreach", action: "List 5 parents you would handpick for micro-beta. Do not invite until onboarding works." },
+      { step: 2, where: "Communities", action: "Log groups where you left helpful comments this week. Update last_engaged_date." },
+      { step: 3, where: "Communities", action: "Confirm phrasewell.net is in your X and Instagram bio." },
+      { step: 4, where: "Email Marketing → Overview", action: "Glance at waitlist count. Note signups since last week." },
     ],
   },
   5: {
@@ -111,6 +108,28 @@ export const TAB_WEEKLY_PLAYBOOKS: Record<number, DailyPlaybook> = {
   },
 };
 
+const THURSDAY_BETA_PLAYBOOK: DailyPlaybook = {
+  id: "thursday-creators-feedback",
+  title: "Thursday — Beta feedback + creators",
+  dashboardTab: "Beta Feedback",
+  klaviyoLocation: "Klaviyo → Lists & Segments",
+  steps: [
+    { step: 1, where: "Beta Feedback", action: "Review new feedback. Skip if no beta parents invited yet." },
+    { step: 2, where: "Beta Feedback", action: "Flag can_use_publicly on any strong testimonial." },
+    { step: 3, where: "Creators", action: "Update contact_status on 2 creators you contacted. Add follow-up notes." },
+    { step: 4, where: "Email Marketing → Segments", action: "Sync segment counts from Klaviyo into dashboard." },
+    { step: 5, where: "Email Marketing → Analytics", action: "Note top + worst email this week. Log in analytics tab." },
+  ],
+};
+
+function getWeeklyPlaybook(day: number, isoDate: string): DailyPlaybook | undefined {
+  if (day === 4) {
+    const phase = getPhaseForDate(isoDate);
+    return phase.id === "prep" ? TAB_WEEKLY_PLAYBOOKS[4] : THURSDAY_BETA_PLAYBOOK;
+  }
+  return TAB_WEEKLY_PLAYBOOKS[day];
+}
+
 /** Steps to build one Klaviyo flow — used in task notes */
 export function getKlaviyoFlowSetupSteps(flowSlug: string): PlaybookStep[] {
   const flow = FLOWS.find((f) => f.slug === flowSlug);
@@ -147,7 +166,7 @@ export function getTodayPlaybooks(isoDate: string): DailyPlaybook[] {
   const day = new Date(isoDate + "T12:00:00").getDay();
   const playbooks: DailyPlaybook[] = [];
 
-  const weekly = TAB_WEEKLY_PLAYBOOKS[day];
+  const weekly = getWeeklyPlaybook(day, isoDate);
   if (weekly) playbooks.push(weekly);
 
   playbooks.push({
@@ -191,7 +210,7 @@ type TaskSeed = {
 
 export function getTabMaintenanceTask(isoDate: string): TaskSeed {
   const day = new Date(isoDate + "T12:00:00").getDay();
-  const playbook = TAB_WEEKLY_PLAYBOOKS[day];
+  const playbook = getWeeklyPlaybook(day, isoDate);
   if (!playbook) {
     return {
       task_title: "Update Growth OS dashboard tabs",
@@ -271,6 +290,7 @@ function tabLink(tabLabel: string): string {
     Communities: "/admin/growth?tab=communities",
     "Content Engine": "/admin/growth?tab=content-engine",
     "Beta Feedback": "/admin/growth?tab=feedback",
+    Outreach: "/admin/growth?tab=outreach",
     Creators: "/admin/growth?tab=creators",
     "Launch Calendar": "/admin/growth?tab=launch",
     Metrics: "/admin/growth?tab=metrics",

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { growthDb, todayIso } from "@/app/lib/growth/db";
-import { TODAY_CHECKLIST } from "@/app/lib/growth/seed-data";
+import { getTodayChecklist } from "@/app/lib/growth/seed-data";
 import { getEnhancedDailyTasks, getKlaviyoBacklogTasks } from "@/app/lib/growth/daily-playbooks";
 
 async function getNextKlaviyoFlow(db: ReturnType<typeof growthDb>) {
@@ -38,7 +38,7 @@ async function buildTaskRows(db: ReturnType<typeof growthDb>, today: string) {
     nextBehavior: nextBehavior ?? null,
   });
 
-  return [...TODAY_CHECKLIST, ...enhanced].map((t) => ({
+  return [...getTodayChecklist(today), ...enhanced].map((t) => ({
     task_date: today,
     ...t,
     status: "not_started",

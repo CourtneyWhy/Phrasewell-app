@@ -5,6 +5,7 @@ import { growthFetch } from "@/app/lib/growth/client";
 import type { DailyPlaybook } from "@/app/lib/growth/daily-playbooks";
 import { getTaskGuide } from "@/app/lib/growth/task-guides";
 import { GOTCHA_PITCH } from "@/app/lib/growth/launch-strategy";
+import { getPhaseForDate } from "@/app/lib/growth/launch-phases";
 import type { GrowthDailyTask, TaskStatus } from "@/app/lib/growth/types";
 import { BigCheckbox, CopyBtn, EmptyState } from "./shared";
 
@@ -81,8 +82,23 @@ export function TodayTab({
     }
   }
 
+  const phase = getPhaseForDate(todayIso);
+
   return (
     <section>
+      <div className="growth-card growth-card-accent">
+        <h2>Current phase: {phase.name}</h2>
+        <p className="growth-muted" style={{ marginTop: 8, lineHeight: 1.55 }}>
+          {phase.goal}
+          {phase.id === "prep" ? (
+            <>
+              {" "}
+              <strong>You are here:</strong> responding in communities and growing waitlist. Beta feedback tasks do not apply until you email handpicked parents.
+            </>
+          ) : null}
+        </p>
+      </div>
+
       <div className="growth-card growth-card-accent">
         <h2>Gotcha pitch</h2>
         <p className="growth-gotcha-pitch">{GOTCHA_PITCH}</p>
@@ -95,8 +111,9 @@ export function TodayTab({
       <div className="growth-card growth-card-muted">
         <h2>Start here</h2>
         <p className="growth-muted">
-          Accelerated launch — micro-beta ≤25 parents only. Waitlist sees script cards, not app login.
-          Batch emails Mondays + social Saturdays when you have time. Skip tasks on hard days — Buffer carries you.
+          {phase.id === "prep"
+            ? "Pre-launch focus: helpful comments on Reddit/FB, daily X post, waitlist link in bio. Skip beta feedback until you send handpicked invites."
+            : "Micro-beta ≤25 parents only. Waitlist sees script cards, not app login. Batch emails Mondays + social Saturdays when you have time. Skip tasks on hard days."}
         </p>
         <div className="growth-playbook-actions">
           <button

@@ -1,5 +1,5 @@
 import { BLOG_TITLES, BEHAVIOR_CATEGORIES, CREATOR_PITCH } from "@/app/lib/growth/templates";
-import { LAUNCH_WEEK_PLAN } from "@/app/lib/growth/launch-phases";
+import { LAUNCH_WEEK_PLAN, getPhaseForDate } from "@/app/lib/growth/launch-phases";
 import { getEnhancedDailyTasks } from "@/app/lib/growth/daily-playbooks";
 import { enrichTask } from "@/app/lib/growth/task-guides";
 
@@ -248,13 +248,12 @@ export function generateDailyTasks(fromDate = "2026-07-01", toDate = "2026-08-03
       continue;
     }
 
-    const weekday = [
-      { task_title: "30 min Reddit/community help (5 comments)", task_type: "community", platform: "Reddit", priority: "high" },
-      { task_title: "30 min Facebook group engagement (3 groups)", task_type: "community", platform: "Facebook", priority: "high" },
-      { task_title: "X marketing post — parenting/marketing angle", task_type: "content", platform: "X", priority: "high" },
-      { task_title: "Micro-beta: chase 1 testimonial (max 25 parents)", task_type: "product", platform: "App", priority: "high" },
-      { task_title: "Log daily metrics", task_type: "metrics", platform: "Dashboard", priority: "high" },
-    ];
+    const weekday = getTodayChecklist(task_date).map((t) => ({
+      task_title: t.task_title,
+      task_type: t.task_type ?? "general",
+      platform: t.platform ?? "Dashboard",
+      priority: t.priority ?? "medium",
+    }));
 
     if (day === 1) {
       weekday.push({ task_title: "Monday batch: schedule 2 weeks of Klaviyo emails", task_type: "email", platform: "Klaviyo", priority: "high" });
@@ -287,10 +286,50 @@ export function generateDailyTasks(fromDate = "2026-07-01", toDate = "2026-08-03
   return tasks;
 }
 
-export const TODAY_CHECKLIST = [
-  { task_title: "30 min Reddit/community help", task_type: "community", platform: "Reddit", priority: "high" },
-  { task_title: "30 min Facebook group engagement", task_type: "community", platform: "Facebook", priority: "high" },
-  { task_title: "X marketing post (parenting angle — not vibe-coding)", task_type: "content", platform: "X", priority: "high" },
-  { task_title: "Micro-beta: chase 1 testimonial quote (≤25 parents)", task_type: "product", platform: "App", priority: "high" },
-  { task_title: "Log daily metrics", task_type: "metrics", platform: "Dashboard", priority: "high" },
-].map((t) => enrichTask(t));
+export function getTodayChecklist(isoDate?: string) {
+  const phase = getPhaseForDate(isoDate ?? new Date().toISOString().slice(0, 10));
+
+  const base = [
+    { task_title: "30 min Reddit/community help (5 comments)", task_type: "community", platform: "Reddit", priority: "high" },
+    { task_title: "30 min Facebook group engagement (3 groups)", task_type: "community", platform: "Facebook", priority: "high" },
+    { task_title: "X marketing post — parenting angle", task_type: "content", platform: "X", priority: "high" },
+    { task_title: "Log daily metrics", task_type: "metrics", platform: "Dashboard", priority: "high" },
+  ];
+
+  if (phase.id === "prep") {
+    return [
+      ...base,
+      {
+        task_title: "Waitlist: confirm phrasewell.net is in X + IG bio",
+        task_type: "waitlist",
+        platform: "Social",
+        priority: "medium",
+      },
+    ].map((t) => enrichTask(t));
+  }
+
+  if (phase.id === "beta") {
+    return [
+      ...base,
+      {
+        task_title: "Micro-beta: chase 1 testimonial (skip until beta invites sent)",
+        task_type: "product",
+        platform: "App",
+        priority: "high",
+      },
+    ].map((t) => enrichTask(t));
+  }
+
+  return [
+    ...base,
+    {
+      task_title: "Micro-beta: chase 1 testimonial quote (≤25 parents)",
+      task_type: "product",
+      platform: "App",
+      priority: "medium",
+    },
+  ].map((t) => enrichTask(t));
+}
+
+/** @deprecated use getTodayChecklist(isoDate) */
+export const TODAY_CHECKLIST = getTodayChecklist();
