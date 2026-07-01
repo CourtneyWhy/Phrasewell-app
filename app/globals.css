@@ -1013,9 +1013,103 @@ html {
 }
 
 .growth-dashboard {
+  --growth-sticky-offset: 132px;
+  --growth-section-head-height: 52px;
   max-width: 1200px;
   margin: 0 auto;
   padding: 16px 16px 48px;
+}
+
+.growth-sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  margin: -16px -16px 16px;
+  padding: 16px 16px 0;
+  background: var(--page-bg);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 6px 16px rgba(28, 25, 23, 0.06);
+}
+
+.growth-sticky-top .growth-header {
+  margin-bottom: 12px;
+}
+
+.growth-sticky-top .growth-tabs {
+  margin-bottom: 0;
+  padding-bottom: 12px;
+}
+
+.growth-sticky-subnav {
+  position: sticky;
+  top: var(--growth-sticky-offset);
+  z-index: 150;
+  margin: 0 0 16px;
+  padding: 0 0 12px;
+  background: var(--page-bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.growth-sticky-subnav .growth-card-head {
+  margin-bottom: 12px;
+}
+
+.growth-sticky-subnav .growth-subtabs {
+  margin-bottom: 0;
+}
+
+.growth-dashboard .growth-card-head,
+.growth-dashboard .growth-card > h2:first-child {
+  position: sticky;
+  top: var(--growth-sticky-offset);
+  z-index: 100;
+  margin: -20px -20px 16px;
+  padding: 16px 20px 12px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.growth-dashboard .growth-card-muted > h2:first-child,
+.growth-dashboard .growth-card-muted .growth-card-head {
+  background: #faf9f7;
+}
+
+.growth-dashboard .growth-card-accent > h2:first-child,
+.growth-dashboard .growth-card-accent .growth-card-head {
+  background: linear-gradient(135deg, #faf6ef 0%, #f5f0e6 100%);
+}
+
+.growth-dashboard .growth-sticky-subnav ~ .growth-card .growth-card-head,
+.growth-dashboard .growth-sticky-subnav ~ .growth-card > h2:first-child,
+.growth-dashboard .growth-sticky-subnav ~ * .growth-card .growth-card-head,
+.growth-dashboard .growth-sticky-subnav ~ * .growth-card > h2:first-child {
+  top: calc(var(--growth-sticky-offset) + var(--growth-sticky-subnav-height, 116px));
+}
+
+.growth-dashboard .growth-card-head h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.growth-email-tab {
+  --growth-sticky-subnav-height: 116px;
+}
+
+.growth-email-tab .growth-card-head,
+.growth-email-tab .growth-card > h2:first-child {
+  top: calc(var(--growth-sticky-offset) + var(--growth-sticky-subnav-height, 116px));
+}
+
+.growth-table-wrap .growth-table thead th {
+  position: sticky;
+  top: calc(var(--growth-sticky-offset) + var(--growth-section-head-height));
+  z-index: 80;
+  background: var(--card-bg);
+  box-shadow: 0 1px 0 var(--border);
+}
+
+.growth-email-tab .growth-table-wrap .growth-table thead th {
+  top: calc(var(--growth-sticky-offset) + var(--growth-sticky-subnav-height, 116px) + var(--growth-section-head-height));
 }
 
 .growth-header {
@@ -1093,7 +1187,6 @@ html {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
 }
 
 .growth-card-head h2 {

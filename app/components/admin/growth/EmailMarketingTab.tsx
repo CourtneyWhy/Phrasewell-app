@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { growthFetch } from "@/app/lib/growth/client";
 import {
   EMAIL_TEMPLATES,
@@ -79,6 +79,7 @@ export function EmailMarketingTab({ onMessage }: { onMessage: (msg: string) => v
   const [analyticsForm, setAnalyticsForm] = useState<Partial<GrowthEmailAnalyticsDaily>>({
     metric_date: new Date().toISOString().slice(0, 10),
   });
+  const subnavRef = useRef<HTMLDivElement>(null);
 
   const loadOverview = useCallback(async () => {
     try {
@@ -104,6 +105,25 @@ export function EmailMarketingTab({ onMessage }: { onMessage: (msg: string) => v
   useEffect(() => {
     loadOverview();
   }, [loadOverview]);
+
+  useEffect(() => {
+    const subnav = subnavRef.current;
+    if (!subnav) return;
+
+    const syncSubnavHeight = () => {
+      subnav.style.setProperty("--growth-sticky-subnav-height", `${subnav.offsetHeight}px`);
+    };
+
+    syncSubnavHeight();
+    const observer = new ResizeObserver(syncSubnavHeight);
+    observer.observe(subnav);
+    window.addEventListener("resize", syncSubnavHeight);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", syncSubnavHeight);
+    };
+  }, []);
 
   useEffect(() => {
     if (sub === "Overview") loadOverview();
@@ -171,30 +191,32 @@ export function EmailMarketingTab({ onMessage }: { onMessage: (msg: string) => v
 
   return (
     <section className="growth-email-tab">
-      <div className="growth-card-head">
-        <p className="growth-muted">
-          Klaviyo is your send platform. This tab tells you exactly what to build — nothing sends automatically.
-        </p>
-        <button type="button" className="growth-btn growth-btn-secondary growth-btn-sm" onClick={seedEmail}>
-          Load email seed data
-        </button>
-        <button type="button" className="growth-btn growth-btn-secondary growth-btn-sm" onClick={refreshEmailCopy}>
-          Refresh email copy
-        </button>
-      </div>
-
-      <nav className="growth-subtabs" aria-label="Email marketing sections">
-        {SUBTABS.map((t) => (
-          <button
-            key={t}
-            type="button"
-            className={`growth-subtab${sub === t ? " growth-subtab-active" : ""}`}
-            onClick={() => setSub(t)}
-          >
-            {t}
+      <div className="growth-sticky-subnav" ref={subnavRef}>
+        <div className="growth-card-head">
+          <p className="growth-muted">
+            Klaviyo is your send platform. This tab tells you exactly what to build — nothing sends automatically.
+          </p>
+          <button type="button" className="growth-btn growth-btn-secondary growth-btn-sm" onClick={seedEmail}>
+            Load email seed data
           </button>
-        ))}
-      </nav>
+          <button type="button" className="growth-btn growth-btn-secondary growth-btn-sm" onClick={refreshEmailCopy}>
+            Refresh email copy
+          </button>
+        </div>
+
+        <nav className="growth-subtabs" aria-label="Email marketing sections">
+          {SUBTABS.map((t) => (
+            <button
+              key={t}
+              type="button"
+              className={`growth-subtab${sub === t ? " growth-subtab-active" : ""}`}
+              onClick={() => setSub(t)}
+            >
+              {t}
+            </button>
+          ))}
+        </nav>
+      </div>
 
       {sub === "Overview" && (
         <div className="growth-email-overview">

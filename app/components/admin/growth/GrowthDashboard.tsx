@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { growthFetch } from "@/app/lib/growth/client";
 import {
   LAUNCH_DATE,
@@ -159,6 +159,9 @@ export function GrowthDashboard() {
   const [agentRuns, setAgentRuns] = useState<Record<string, unknown>[]>([]);
   const [launchPhaseFilter, setLaunchPhaseFilter] = useState("");
 
+  const dashboardRef = useRef<HTMLDivElement>(null);
+  const stickyTopRef = useRef<HTMLDivElement>(null);
+
   const todayIso = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const launchDays = useMemo(() => getLaunchCalendarDays(todayIso), [todayIso]);
 
@@ -167,6 +170,26 @@ export function GrowthDashboard() {
     const t = params.get("tab");
     if (t && TABS.some((x) => x.id === t)) setTab(t as TabId);
   }, []);
+
+  useEffect(() => {
+    const dashboard = dashboardRef.current;
+    const stickyTop = stickyTopRef.current;
+    if (!dashboard || !stickyTop) return;
+
+    const syncStickyOffset = () => {
+      dashboard.style.setProperty("--growth-sticky-offset", `${stickyTop.offsetHeight}px`);
+    };
+
+    syncStickyOffset();
+    const observer = new ResizeObserver(syncStickyOffset);
+    observer.observe(stickyTop);
+    window.addEventListener("resize", syncStickyOffset);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", syncStickyOffset);
+    };
+  }, [message]);
 
   function goToTab(tabId: TabId) {
     setTab(tabId);
@@ -411,43 +434,45 @@ export function GrowthDashboard() {
     : launchDays;
 
   return (
-    <div className="growth-dashboard">
-      <header className="growth-header">
-        <div>
-          <h1 className="font-heading">Growth OS</h1>
-          <p className="growth-subtitle">Founder LTD launch {LAUNCH_DATE} · {GOTCHA_PITCH}</p>
-        </div>
-        <div className="growth-header-actions">
-          <button type="button" className="growth-btn growth-btn-secondary growth-btn-sm" onClick={() => runSeed("all")}>
-            Load seed data
-          </button>
-          <button
-            type="button"
-            className="growth-btn growth-btn-secondary growth-btn-sm"
-            onClick={async () => {
-              await fetch("/api/admin/auth", { method: "DELETE" });
-              window.location.href = "/admin/login";
-            }}
-          >
-            Sign out
-          </button>
-        </div>
-      </header>
+    <div className="growth-dashboard" ref={dashboardRef}>
+      <div className="growth-sticky-top" ref={stickyTopRef}>
+        <header className="growth-header">
+          <div>
+            <h1 className="font-heading">Growth OS</h1>
+            <p className="growth-subtitle">Founder LTD launch {LAUNCH_DATE} · {GOTCHA_PITCH}</p>
+          </div>
+          <div className="growth-header-actions">
+            <button type="button" className="growth-btn growth-btn-secondary growth-btn-sm" onClick={() => runSeed("all")}>
+              Load seed data
+            </button>
+            <button
+              type="button"
+              className="growth-btn growth-btn-secondary growth-btn-sm"
+              onClick={async () => {
+                await fetch("/api/admin/auth", { method: "DELETE" });
+                window.location.href = "/admin/login";
+              }}
+            >
+              Sign out
+            </button>
+          </div>
+        </header>
+
+        <nav className="growth-tabs" aria-label="Dashboard tabs">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              className={`growth-tab${tab === t.id ? " growth-tab-active" : ""}`}
+              onClick={() => goToTab(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </nav>
+      </div>
 
       {message ? <p className="growth-toast">{message}</p> : null}
-
-      <nav className="growth-tabs" aria-label="Dashboard tabs">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            className={`growth-tab${tab === t.id ? " growth-tab-active" : ""}`}
-            onClick={() => goToTab(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </nav>
 
       <main className="growth-main">
         {tab === "today" && (
