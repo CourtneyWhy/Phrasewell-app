@@ -191,7 +191,15 @@ export function GrowthDashboard() {
     };
   }, [message]);
 
+  function clearTableFilters() {
+    setPlatform("");
+    setStatus("");
+    setPriority("");
+    setFilterDate("");
+  }
+
   function goToTab(tabId: TabId) {
+    clearTableFilters();
     setTab(tabId);
     window.history.replaceState(null, "", `/admin/growth?tab=${tabId}`);
   }
@@ -206,10 +214,19 @@ export function GrowthDashboard() {
   }, []);
 
   const loadTable = useCallback(
-    async (table: string, setter: (rows: never[]) => void) => {
+    async (
+      table: string,
+      setter: (rows: never[]) => void,
+      filterOverrides?: { platform?: string; status?: string; priority?: string; date?: string },
+    ) => {
       setLoading(true);
       try {
-        const q = buildQuery({ platform, status, priority, date: filterDate });
+        const q = buildQuery({
+          platform: filterOverrides?.platform ?? platform,
+          status: filterOverrides?.status ?? status,
+          priority: filterOverrides?.priority ?? priority,
+          date: filterOverrides?.date ?? filterDate,
+        });
         const res = await growthFetch<{ data: never[] }>(`/api/admin/growth/${table}${q}`);
         setter(res.data ?? []);
       } catch {
@@ -423,7 +440,13 @@ export function GrowthDashboard() {
         follow_up_date: "",
         notes: "",
       });
-      await loadTable("outreach", setOutreach as (r: never[]) => void);
+      clearTableFilters();
+      await loadTable("outreach", setOutreach as (r: never[]) => void, {
+        platform: "",
+        status: "",
+        priority: "",
+        date: "",
+      });
     } catch (e) {
       setMessage(e instanceof Error ? e.message : "Could not save outreach");
     }

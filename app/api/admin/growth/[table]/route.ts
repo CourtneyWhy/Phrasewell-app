@@ -77,9 +77,11 @@ export async function GET(request: Request, context: RouteContext) {
   const category = searchParams.get("category");
   const flowSlug = searchParams.get("flow");
 
+  const hasPriority = table === "daily-tasks" || table === "communities" || table === "creators";
+
   if (status && statusField) query = query.eq(statusField, status);
   if (platform) query = query.eq("platform", platform);
-  if (priority) query = query.eq("priority", priority);
+  if (priority && hasPriority) query = query.eq("priority", priority);
   if (date && dateField) query = query.eq(dateField, date);
   if (category && table === "content-pipeline") query = query.eq("category_id", category);
   if (flowSlug && table === "email-flow-emails") query = query.eq("flow_slug", flowSlug);
@@ -95,7 +97,7 @@ export async function GET(request: Request, context: RouteContext) {
     query = query.order("category_id", { ascending: true }).order("behavior_title", { ascending: true });
   } else if (dateField && !date && (table === "daily-tasks" || table === "content")) {
     query = query.order(dateField, { ascending: true });
-  } else if (table === "metrics" || table === "revenue") {
+  } else if (table === "metrics" || table === "revenue" || table === "outreach") {
     query = query.order(dateField!, { ascending: false });
   } else {
     query = query.order("created_at", { ascending: false });
