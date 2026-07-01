@@ -38,11 +38,13 @@ async function buildTaskRows(db: ReturnType<typeof growthDb>, today: string) {
     nextBehavior: nextBehavior ?? null,
   });
 
-  return [...getTodayChecklist(today), ...enhanced].map((t) => ({
-    task_date: today,
-    ...t,
-    status: "not_started",
-  }));
+  return [...getTodayChecklist(today), ...enhanced]
+    .filter((t, i, arr) => arr.findIndex((x) => x.task_title === t.task_title) === i)
+    .map((t) => ({
+      task_date: today,
+      ...t,
+      status: "not_started",
+    }));
 }
 
 export async function POST(request: Request) {

@@ -1,6 +1,7 @@
 /** Step-by-step guides for every daily task — zero guesswork for founder or helper */
 
 import { GOTCHA_PITCH } from "@/app/lib/growth/launch-strategy";
+import { OUTREACH_TEMPLATES } from "@/app/lib/growth/templates";
 
 export type TaskGuide = {
   tabId: string;
@@ -9,6 +10,8 @@ export type TaskGuide = {
   steps: string[];
   doneWhen: string;
   tip?: string;
+  copyText?: string;
+  copyLabel?: string;
 };
 
 type TaskLike = {
@@ -127,21 +130,40 @@ export function getTaskGuide(task: TaskLike): TaskGuide {
     };
   }
 
-  if (titleHas(task, "handpicked beta", "invite 1") || titleHas(task, "list 5 parents")) {
+  if (titleHas(task, "list 5 parents")) {
     return {
       tabId: "outreach",
       tabLabel: "Outreach",
-      minutes: 20,
+      minutes: 10,
       steps: [
-        "Open Outreach tab. Add a row for each person: name, text or email, status Not sent.",
-        "Start with people you know: spouse, foster parent friend, kinship caregiver in your network.",
-        "Send a personal message: you're testing Phrasewell and want honest feedback in real moments.",
-        "Include: phrasewell.net/app/login, beta password, and ask them to check spam for the sign-in email.",
-        "Do not post the app link in Facebook groups or Reddit yet. Handpicked only.",
-        "Goal this week: 3–5 inner circle testers, then grow toward 15–25 by July 13.",
+        "Open Outreach tab → Log outreach → Type: Beta invite.",
+        "Write down 5 parents you would trust with early feedback (name only — no message yet).",
+        "Include your spouse/partner, a foster parent friend, kinship caregiver, or someone from your network.",
+        "Set status to Not sent for now. You'll text them in the next task.",
+        "Do not post the app link in Facebook groups or Reddit. Handpicked only.",
       ],
-      doneWhen: "At least 1 handpicked invite sent to someone you know, or 5 names listed in Outreach.",
-      tip: "Your husband counts as tester #1. Friends and foster parents you trust are perfect before strangers.",
+      doneWhen: "5 names logged in Outreach (status Not sent is fine).",
+      tip: "Pick people who will tell you the truth, not just cheer you on.",
+    };
+  }
+
+  if (titleHas(task, "handpicked beta", "invite", "text 1")) {
+    return {
+      tabId: "outreach",
+      tabLabel: "Outreach",
+      minutes: 15,
+      steps: [
+        "Copy the text script below. Replace [name] with their first name.",
+        "Replace [paste your BETA_APP_PASSWORD from Vercel] with your real beta password (Vercel → Settings → Environment Variables).",
+        "Send by text or iMessage to 1–3 people from your list — start with someone you know well (spouse counts as tester #1).",
+        "Open Outreach tab → Log outreach for each person: who, Text/SMS, paste what you sent, status Sent.",
+        "Tell them to check spam for the sign-in email after they enter their address on the login page.",
+        "Do not post phrasewell.net/app/login in groups or Reddit yet.",
+      ],
+      doneWhen: "At least 1 personal text sent and logged in Outreach.",
+      tip: "Warm and short beats polished. They know you — write like you're texting a friend.",
+      copyText: OUTREACH_TEMPLATES.handpickedBetaText,
+      copyLabel: "Copy text to send",
     };
   }
 

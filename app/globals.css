@@ -1762,6 +1762,23 @@ html {
   border-radius: 8px;
 }
 
+.growth-guided-copy {
+  margin-top: 12px;
+}
+
+.growth-guided-script {
+  margin: 10px 0 0;
+  padding: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  max-height: 220px;
+  overflow: auto;
+}
+
 .growth-guided-preview {
   margin: 8px 0 0 40px;
   font-size: 13px;

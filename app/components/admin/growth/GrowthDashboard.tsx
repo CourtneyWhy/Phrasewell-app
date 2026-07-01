@@ -853,6 +853,7 @@ export function GrowthDashboard() {
                     <option value="groupAdmin">Group admin ask</option>
                     <option value="creatorDm">Creator DM</option>
                     <option value="podcastPitch">Podcast pitch</option>
+                    <option value="handpickedBetaText">Text to a parent you know</option>
                   </select>
                 </label>
                 <label className="growth-form-span-all">

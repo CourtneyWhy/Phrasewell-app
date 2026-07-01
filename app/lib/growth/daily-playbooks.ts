@@ -63,7 +63,7 @@ export const TAB_WEEKLY_PLAYBOOKS: Record<number, DailyPlaybook> = {
     title: "Thursday — Outreach prep (pre-beta)",
     dashboardTab: "Outreach",
     steps: [
-      { step: 1, where: "Outreach", action: "List 5 parents you would handpick for micro-beta. Do not invite until onboarding works." },
+      { step: 1, where: "Today → checklist", action: "If you haven't listed names yet: Outreach → log 5 parents (Not sent). Then text 1–3 using the copy script on the handpicked beta task." },
       { step: 2, where: "Communities", action: "Log groups where you left helpful comments this week. Update last_engaged_date." },
       { step: 3, where: "Communities", action: "Confirm phrasewell.net is in your X and Instagram bio." },
       { step: 4, where: "Email Marketing → Overview", action: "Glance at waitlist count. Note signups since last week." },

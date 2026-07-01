@@ -275,6 +275,12 @@ export function TodayTab({
                     {guide.tip ? (
                       <p className="growth-guided-tip">💡 {guide.tip}</p>
                     ) : null}
+                    {guide.copyText ? (
+                      <div className="growth-guided-copy">
+                        <CopyBtn text={guide.copyText} label={guide.copyLabel ?? "Copy script"} />
+                        <pre className="growth-guided-script">{guide.copyText}</pre>
+                      </div>
+                    ) : null}
                     {task.notes && task.task_type === "klaviyo-setup" ? (
                       <details className="growth-guided-extra">
                         <summary>Klaviyo technical steps</summary>

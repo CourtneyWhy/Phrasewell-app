@@ -16,6 +16,17 @@ Would you be open to sharing with parents who might want to try it?`,
 Phrasewell gives exact scripts for common hard moments like lying, stealing, food hoarding, meltdowns, aggression, and bedtime struggles.
 
 I'd love to talk about the gap between trauma-informed parenting advice and what parents need in the moment.`,
+  handpickedBetaText: `Hey [name] — it's Courtney. I'm testing an app I built for foster, adoptive, and kinship parents called Phrasewell. When things get hard (meltdowns, hitting, lying, bedtime battles), you tap the behavior and get exact words to say in the moment.
+
+Would you try it for a week and tell me honestly what's missing? You're not helping me if it's not useful.
+
+1. Go to phrasewell.net/app/login
+2. Enter your email — they'll send a sign-in link (check spam)
+3. Use the beta password: [paste your BETA_APP_PASSWORD from Vercel]
+
+Works on your phone — save it to your home screen for hard moments.
+
+Thank you — I mean it.`,
 };
 
 export const POST_TEMPLATES = {

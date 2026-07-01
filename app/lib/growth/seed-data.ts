@@ -296,25 +296,25 @@ export function getTodayChecklist(isoDate?: string) {
     { task_title: "Log daily metrics", task_type: "metrics", platform: "Dashboard", priority: "high" },
   ];
 
-  const preInvite = [
-    {
-      task_title: "Handpicked beta: list 5 parents you would invite by name",
-      task_type: "planning",
-      platform: "Outreach",
-      priority: "medium",
-    },
-    {
-      task_title: "Handpicked beta: invite 1–3 people you know (beta password + phrasewell.net/app/login)",
-      task_type: "product",
-      platform: "App",
-      priority: "high",
-    },
-  ];
+  const preInviteList = {
+    task_title: "Handpicked beta: list 5 parents you'd invite by name",
+    task_type: "planning",
+    platform: "Outreach",
+    priority: "medium",
+  };
+
+  const preInviteSend = {
+    task_title: "Handpicked beta: text 1–3 people you know (copy script below)",
+    task_type: "product",
+    platform: "Text",
+    priority: "high",
+  };
 
   if (phase.id === "prep") {
     return [
       ...base,
-      ...preInvite,
+      preInviteList,
+      preInviteSend,
       {
         task_title: "Waitlist: confirm phrasewell.net is in X + IG bio",
         task_type: "waitlist",
@@ -327,7 +327,7 @@ export function getTodayChecklist(isoDate?: string) {
   if (phase.id === "beta") {
     return [
       ...base,
-      ...preInvite,
+      preInviteSend,
       {
         task_title: "Micro-beta: chase 1 testimonial (only after they used the app)",
         task_type: "product",
