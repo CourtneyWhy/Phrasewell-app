@@ -134,7 +134,7 @@ export function TodayTab({
               )
             }
           >
-            {loading === "generate" ? "Working…" : "Generate Today's Tasks"}
+            {loading === "generate" ? "Working…" : "Generate today (tasks + social pack)"}
           </button>
           <button
             type="button"

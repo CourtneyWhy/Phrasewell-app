@@ -1,5 +1,8 @@
 import { growthDb, todayIso } from "@/app/lib/growth/db";
 import { generateContentDrafts } from "@/app/lib/growth/content-studio";
+import { hasOpenAI, generateSlideImages } from "@/app/lib/growth/openai-images";
+import { buildViralTikTokPack } from "@/app/lib/growth/tiktok-viral";
+import { LANDING_DEMO_PHRASES } from "@/app/lib/landing-demo-phrases";
 import { fetchRedditOpportunities, normalizeThreadUrl } from "@/app/lib/growth/reddit-scout";
 import { fetchXOpportunities } from "@/app/lib/growth/x-scout";
 
@@ -133,6 +136,9 @@ export async function runContentStudio(draftDate?: string): Promise<{ added: num
       image_prompts: draft.image_prompts,
       video_script: draft.video_script,
       source_task_title: draft.source_task_title,
+      on_screen_hook: draft.on_screen_hook ?? null,
+      hashtags: draft.hashtags ?? null,
+      audio_suggestion: draft.audio_suggestion ?? null,
       notes: draft.notes,
       status: "draft",
       updated_at: new Date().toISOString(),
@@ -168,8 +174,85 @@ export async function runContentStudio(draftDate?: string): Promise<{ added: num
   return { added, platforms };
 }
 
-export async function runDailyGrowthAgents(scoutDate?: string): Promise<ScoutResult & { content: { added: number; platforms: string[] } }> {
+function phraseForDate(isoDate: string) {
+  const day = parseInt(isoDate.slice(8, 10), 10) || 1;
+  return LANDING_DEMO_PHRASES[day % LANDING_DEMO_PHRASES.length]!;
+}
+
+/** Generate DALL-E slide images for today's TikTok pack; copies to Instagram draft. */
+export async function runSlideImageGeneration(draftDate?: string): Promise<{ images: number; message: string }> {
+  if (!hasOpenAI()) {
+    return { images: 0, message: "Add OPENAI_API_KEY in Vercel to auto-generate TikTok/IG slide images." };
+  }
+
+  const db = growthDb();
+  if (!db) throw new Error("Database not configured.");
+
+  const date = draftDate ?? todayIso();
+
+  const { data: tiktokDraft } = await db
+    .from("growth_content_drafts")
+    .select("*")
+    .eq("draft_date", date)
+    .eq("platform", "TikTok")
+    .maybeSingle();
+
+  if (!tiktokDraft?.behavior_title) {
+    return { images: 0, message: "No TikTok draft for today. Generate tasks first." };
+  }
+
+  const viral = buildViralTikTokPack(
+    tiktokDraft.behavior_title,
+    phraseForDate(date),
+    date,
+  );
+
+  const images = await generateSlideImages(db, date, "tiktok", viral.slides);
+
+  await db
+    .from("growth_content_drafts")
+    .update({ generated_images: images, updated_at: new Date().toISOString() })
+    .eq("id", tiktokDraft.id);
+
+  const { data: igDraft } = await db
+    .from("growth_content_drafts")
+    .select("id")
+    .eq("draft_date", date)
+    .eq("platform", "Instagram")
+    .maybeSingle();
+
+  if (igDraft?.id) {
+    await db
+      .from("growth_content_drafts")
+      .update({ generated_images: images, updated_at: new Date().toISOString() })
+      .eq("id", igDraft.id);
+  }
+
+  await db.from("growth_agent_runs").insert({
+    agent_name: "Slide Image Generator",
+    run_date: date,
+    input: JSON.stringify({ behavior: tiktokDraft.behavior_title, slides: viral.slides.length }),
+    output: JSON.stringify({ count: images.length }),
+    status: "success",
+    notes: `Glam Up style slides for TikTok + Instagram`,
+  });
+
+  return {
+    images: images.length,
+    message: `Generated ${images.length} slide images. Download in Content Studio → post to TikTok.`,
+  };
+}
+
+export async function runDailyGrowthAgents(scoutDate?: string): Promise<
+  ScoutResult & { content: { added: number; platforms: string[] }; images: { images: number; message: string } }
+> {
   const scout = await runSocialScout(scoutDate);
   const content = await runContentStudio(scoutDate);
-  return { ...scout, content };
+  let images = { images: 0, message: "" };
+  try {
+    images = await runSlideImageGeneration(scoutDate);
+  } catch (e) {
+    images = { images: 0, message: e instanceof Error ? e.message : "Image generation failed." };
+  }
+  return { ...scout, content, images };
 }

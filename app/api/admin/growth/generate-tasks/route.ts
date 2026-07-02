@@ -92,7 +92,7 @@ export async function POST(request: Request) {
   try {
     const { runDailyGrowthAgents } = await import("@/app/lib/growth/social-scout");
     const scout = await runDailyGrowthAgents(today);
-    scoutSummary = `${scout.reddit.added} Reddit threads, ${scout.x.added} X opportunities, ${scout.content.added} content drafts`;
+    scoutSummary = `Reddit ${scout.reddit.added}, X ${scout.x.added}, content: ${scout.content.platforms.join(", ") || "—"}. ${scout.images.message}`;
   } catch {
     scoutSummary = null;
   }
@@ -103,8 +103,8 @@ export async function POST(request: Request) {
     regenerated: regenerate,
     scout: scoutSummary,
     message: regenerate
-      ? `Replaced today's list with ${rows.length} fresh tasks.${scoutSummary ? ` Social scout: ${scoutSummary}.` : ""} Open Social Scout and Content Studio tabs.`
-      : `Added ${rows.length} tasks.${scoutSummary ? ` Social scout: ${scoutSummary}.` : ""} Open Social Scout and Content Studio tabs.`,
+      ? `Replaced today's list with ${rows.length} fresh tasks.${scoutSummary ? ` Social pack: ${scoutSummary}` : ""} Open Social Scout + Content Studio.`
+      : `Added ${rows.length} tasks.${scoutSummary ? ` Social pack: ${scoutSummary}` : ""} Open Social Scout + Content Studio.`,
   });
 }
 

@@ -3,6 +3,7 @@ import { LANDING_DEMO_PHRASES } from "@/app/lib/landing-demo-phrases";
 import { GOTCHA_PITCH } from "@/app/lib/growth/launch-strategy";
 import { POST_TEMPLATES } from "@/app/lib/growth/templates";
 import { buildXPostDraft } from "@/app/lib/growth/x-scout";
+import { buildViralTikTokPack } from "@/app/lib/growth/tiktok-viral";
 import type { GrowthDailyTask } from "@/app/lib/growth/types";
 
 export type ContentDraftInput = {
@@ -24,6 +25,9 @@ export type GeneratedContentDraft = {
   video_script: string | null;
   source_task_title: string | null;
   notes: string | null;
+  on_screen_hook?: string | null;
+  hashtags?: string | null;
+  audio_suggestion?: string | null;
 };
 
 const PLATFORM_SPECS: Record<
@@ -32,8 +36,8 @@ const PLATFORM_SPECS: Record<
 > = {
   X: { contentTypes: ["post"], defaultDays: [0, 1, 2, 3, 4, 5, 6], postsPerDay: 1 },
   LinkedIn: { contentTypes: ["post"], defaultDays: [5], postsPerDay: 1 },
-  TikTok: { contentTypes: ["video"], defaultDays: [3, 6], postsPerDay: 1 },
-  Instagram: { contentTypes: ["reel"], defaultDays: [3, 6], postsPerDay: 1 },
+  TikTok: { contentTypes: ["video"], defaultDays: [0, 1, 2, 3, 4, 5, 6], postsPerDay: 1 },
+  Instagram: { contentTypes: ["reel"], defaultDays: [0, 1, 2, 3, 4, 5, 6], postsPerDay: 1 },
   Pinterest: { contentTypes: ["pin"], defaultDays: [6], postsPerDay: 1 },
 };
 
@@ -73,33 +77,6 @@ function shouldPostPlatform(isoDate: string, platform: string, tasks: GrowthDail
   const dow = dayOfWeek(isoDate);
   if (taskWantsPlatform(tasks, platform)) return true;
   return spec.defaultDays.includes(dow);
-}
-
-function slidePrompts(behaviorTitle: string, phrase: (typeof LANDING_DEMO_PHRASES)[0]) {
-  return [
-    `Slide 1 — Hook: Cream background, Phrasewell logo small top corner. Bold text: "When ${behaviorTitle.toLowerCase()}…"`,
-    `Slide 2 — Problem: Parent overwhelmed. Text: "Your brain goes blank."`,
-    `Slide 3 — Script card: Large quote: "${phrase.sayThis}"`,
-    `Slide 4 — Do this: "${phrase.doThis}"`,
-    `Slide 5 — CTA: "${GOTCHA_PITCH}" + phrasewell.net`,
-  ];
-}
-
-function videoScript(behaviorTitle: string, phrase: (typeof LANDING_DEMO_PHRASES)[0]) {
-  return `[HOOK — 0-3s, on camera or text on screen]
-"When ${behaviorTitle.toLowerCase()}, do you ever go blank on what to say?"
-
-[PROBLEM — 3-8s]
-"Theory is in your head. The words won't come."
-
-[SOLUTION — 8-20s]
-"Try this instead: ${phrase.sayThis}"
-
-[DO THIS — 20-28s]
-"${phrase.doThis}"
-
-[CTA — 28-35s]
-"${GOTCHA_PITCH} Waitlist: phrasewell.net"`;
 }
 
 export function generateContentDrafts(input: ContentDraftInput): GeneratedContentDraft[] {
@@ -153,34 +130,42 @@ export function generateContentDrafts(input: ContentDraftInput): GeneratedConten
   }
 
   if (shouldPostPlatform(input.draftDate, "TikTok", input.tasks)) {
+    const viral = buildViralTikTokPack(behavior.behavior_title, phrase, input.draftDate);
     drafts.push({
       platform: "TikTok",
       content_type: "video",
       behavior_id: behavior.behavior_id,
       behavior_title: behavior.behavior_title,
-      hook: `What to say when ${behavior.behavior_title.toLowerCase()}`,
-      body: phrase.sayThis,
-      cta: "Link in bio → phrasewell.net",
-      image_prompts: slidePrompts(behavior.behavior_title, phrase),
-      video_script: videoScript(behavior.behavior_title, phrase),
+      hook: viral.onScreenHook,
+      body: viral.caption,
+      cta: "Waitlist in bio → phrasewell.net",
+      image_prompts: viral.slides.map((s) => `Slide ${s.slide} (${s.label}): ${s.onScreenText}`),
+      video_script: viral.videoScript,
       source_task_title: linkedTask("TikTok"),
-      notes: "Use Canva slides → CapCut voiceover. Wed/Sat default or when reel task is on checklist.",
+      on_screen_hook: viral.onScreenHook,
+      hashtags: viral.hashtags,
+      audio_suggestion: viral.audioSuggestion,
+      notes: "Glam Up style: before/after script slideshow. Download slides below → TikTok photo mode or CapCut.",
     });
   }
 
   if (shouldPostPlatform(input.draftDate, "Instagram", input.tasks)) {
+    const viral = buildViralTikTokPack(behavior.behavior_title, phrase, input.draftDate);
     drafts.push({
       platform: "Instagram",
       content_type: "reel",
       behavior_id: behavior.behavior_id,
       behavior_title: behavior.behavior_title,
-      hook: phrase.moment,
-      body: `${phrase.sayThis}\n\n${phrase.doThis}`,
+      hook: viral.onScreenHook,
+      body: viral.caption,
       cta: "Waitlist in bio — phrasewell.net",
-      image_prompts: slidePrompts(behavior.behavior_title, phrase),
-      video_script: videoScript(behavior.behavior_title, phrase),
+      image_prompts: viral.slides.map((s) => `Slide ${s.slide} (${s.label}): ${s.onScreenText}`),
+      video_script: viral.videoScript,
       source_task_title: linkedTask("Instagram") ?? linkedTask("TikTok"),
-      notes: "Repost TikTok reel or remake as IG Reel. Same slide deck works.",
+      on_screen_hook: viral.onScreenHook,
+      hashtags: viral.hashtags,
+      audio_suggestion: viral.audioSuggestion,
+      notes: "Same slides as TikTok reel. Post as Reel or carousel.",
     });
   }
 

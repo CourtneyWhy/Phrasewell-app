@@ -10,6 +10,8 @@ type ContentStudioTabProps = {
   onMessage: (msg: string) => void;
 };
 
+type GeneratedImage = { slide: number; label: string; url: string };
+
 export function ContentStudioTab({ todayIso, onMessage }: ContentStudioTabProps) {
   const [drafts, setDrafts] = useState<GrowthContentDraft[]>([]);
   const [loading, setLoading] = useState(false);
@@ -30,55 +32,94 @@ export function ContentStudioTab({ todayIso, onMessage }: ContentStudioTabProps)
     load();
   }, [load]);
 
-  async function generate() {
+  async function runPack(mode: "content" | "images" | "all") {
     setLoading(true);
     try {
       const res = await growthFetch<{ message?: string }>("/api/admin/growth/scout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: "content", scout_date: filterDate }),
+        body: JSON.stringify({ mode: mode === "all" ? "all" : mode, scout_date: filterDate }),
       });
-      onMessage(res.message ?? "Content generated.");
+      onMessage(res.message ?? "Done.");
       await load();
     } catch (e) {
-      onMessage(e instanceof Error ? e.message : "Generation failed.");
+      onMessage(e instanceof Error ? e.message : "Failed.");
     } finally {
       setLoading(false);
     }
   }
 
   const fullPost = (d: GrowthContentDraft) =>
-    [d.hook, d.body, d.cta].filter(Boolean).join("\n\n");
+    [d.hook, d.body, d.cta, d.hashtags].filter(Boolean).join("\n\n");
+
+  const tiktok = drafts.find((d) => d.platform === "TikTok");
 
   return (
     <section>
-      <div className="growth-card">
+      <div className="growth-card growth-card-accent">
         <h2>Content Studio</h2>
         <p className="growth-muted">
-          Daily drafts for X, LinkedIn, TikTok, Instagram, and Pinterest based on your checklist and content
-          pipeline. Video platforms include slide prompts + scripts for Canva/CapCut.
+          One place for X, TikTok, and Instagram. TikTok uses a Glam Up style before/after script slideshow
+          (hook → blank brain → old words → app → new script → waitlist CTA). Generate Today on the Today tab
+          runs everything, including slide images when OPENAI_API_KEY is set.
         </p>
         <div className="growth-form-grid growth-form-grid-compact">
           <label>
-            Draft date
+            Date
             <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} />
           </label>
         </div>
         <div className="growth-card-actions">
-          <button type="button" className="growth-btn growth-btn-primary" disabled={loading} onClick={generate}>
-            {loading ? "Generating…" : "Generate today's content"}
+          <button type="button" className="growth-btn growth-btn-primary" disabled={loading} onClick={() => runPack("all")}>
+            {loading ? "Working…" : "Run full social pack"}
+          </button>
+          <button type="button" className="growth-btn" disabled={loading} onClick={() => runPack("images")}>
+            Generate slide images only
           </button>
         </div>
       </div>
 
+      {tiktok?.generated_images && (tiktok.generated_images as GeneratedImage[]).length > 0 ? (
+        <div className="growth-card">
+          <h3>TikTok / Instagram slides — download and post</h3>
+          <p className="growth-muted">
+            TikTok: Photo mode slideshow or import to CapCut. Audio: {tiktok.audio_suggestion ?? "pick calm trending sound"}
+          </p>
+          <div className="growth-slide-grid">
+            {(tiktok.generated_images as GeneratedImage[]).map((img) => (
+              <figure key={img.slide} className="growth-slide-figure">
+                <img src={img.url} alt={`Slide ${img.slide}: ${img.label}`} className="growth-slide-img" />
+                <figcaption>
+                  {img.slide}. {img.label}{" "}
+                  <a href={img.url} download={`phrasewell-slide-${img.slide}.png`} className="growth-slide-dl">
+                    Download
+                  </a>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+          <p className="growth-muted" style={{ marginTop: 12 }}>
+            <strong>Post steps:</strong> Upload slides to TikTok → add suggested audio → paste caption + hashtags from
+            TikTok draft below → link in bio phrasewell.net
+          </p>
+        </div>
+      ) : tiktok ? (
+        <div className="growth-card">
+          <p className="growth-muted">
+            No slide images yet. Add OPENAI_API_KEY in Vercel, then click Generate slide images only (takes ~1–2 min).
+          </p>
+        </div>
+      ) : null}
+
       {drafts.length === 0 ? (
         <EmptyState
           title="No content drafts for this date"
-          body="Generate Today's Tasks on the Today tab (includes content drafts), or click Generate above."
+          body='Click "Generate today (tasks + social pack)" on the Today tab.'
         />
       ) : (
         drafts.map((d) => {
           const slides = Array.isArray(d.image_prompts) ? d.image_prompts : [];
+          const isVideo = d.platform === "TikTok" || d.platform === "Instagram";
           return (
             <div key={d.id} className="growth-card growth-content-draft-card">
               <div className="growth-scout-card-head">
@@ -88,33 +129,43 @@ export function ContentStudioTab({ todayIso, onMessage }: ContentStudioTabProps)
                 </h3>
                 <span className="growth-tag">{d.status}</span>
               </div>
-              {d.source_task_title ? (
-                <p className="growth-muted">From task: {d.source_task_title}</p>
+              {isVideo && d.on_screen_hook ? (
+                <p className="growth-scout-excerpt">
+                  <strong>On-screen hook:</strong> {d.on_screen_hook}
+                </p>
               ) : null}
-              {d.hook ? <p className="growth-scout-excerpt"><strong>Hook:</strong> {d.hook}</p> : null}
               {d.body ? (
                 <div className="growth-scout-draft">
+                  <strong>{isVideo ? "Caption" : "Post"}</strong>
                   <pre>{d.body}</pre>
-                  <CopyBtn text={fullPost(d)} label="Copy full post" />
+                  <CopyBtn text={fullPost(d)} label="Copy caption + hashtags" />
                 </div>
               ) : null}
-              {d.cta ? <p className="growth-muted"><strong>CTA:</strong> {d.cta}</p> : null}
-              {slides.length > 0 ? (
+              {d.hashtags ? (
+                <p className="growth-muted">
+                  <strong>Hashtags:</strong> {d.hashtags}
+                </p>
+              ) : null}
+              {d.audio_suggestion ? (
+                <p className="growth-muted">
+                  <strong>Audio:</strong> {d.audio_suggestion}
+                </p>
+              ) : null}
+              {d.video_script ? (
                 <div className="growth-scout-draft">
-                  <strong>Image / slide prompts</strong>
+                  <strong>Voiceover script</strong>
+                  <pre>{d.video_script}</pre>
+                  <CopyBtn text={d.video_script} label="Copy script" />
+                </div>
+              ) : null}
+              {slides.length > 0 && !(d.generated_images as GeneratedImage[] | null)?.length ? (
+                <div className="growth-scout-draft">
+                  <strong>Slide outline</strong>
                   <ol className="growth-list">
                     {slides.map((s, i) => (
                       <li key={i}>{s}</li>
                     ))}
                   </ol>
-                  <CopyBtn text={slides.join("\n\n")} label="Copy slide prompts" />
-                </div>
-              ) : null}
-              {d.video_script ? (
-                <div className="growth-scout-draft">
-                  <strong>Video script</strong>
-                  <pre>{d.video_script}</pre>
-                  <CopyBtn text={d.video_script} label="Copy script" />
                 </div>
               ) : null}
               {d.notes ? <p className="growth-muted">{d.notes}</p> : null}

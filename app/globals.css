@@ -1867,6 +1867,36 @@ html {
   font-size: 1rem;
 }
 
+.growth-slide-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.growth-slide-figure {
+  margin: 0;
+}
+
+.growth-slide-img {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  background: #f5f0e8;
+}
+
+.growth-slide-figure figcaption {
+  font-size: 12px;
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.growth-slide-dl {
+  color: var(--foreground);
+}
+
 .growth-stat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));

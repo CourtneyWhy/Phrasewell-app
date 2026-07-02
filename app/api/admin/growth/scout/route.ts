@@ -3,11 +3,11 @@ import { runContentStudio, runDailyGrowthAgents, runSocialScout } from "@/app/li
 
 export async function POST(request: Request) {
   try {
-    let mode: "all" | "reddit" | "x" | "content" = "all";
+    let mode: "all" | "reddit" | "x" | "content" | "images" = "all";
     let scoutDate: string | undefined;
     try {
       const body = await request.json();
-      if (body?.mode === "reddit" || body?.mode === "x" || body?.mode === "content" || body?.mode === "all") {
+      if (body?.mode === "reddit" || body?.mode === "x" || body?.mode === "content" || body?.mode === "images" || body?.mode === "all") {
         mode = body.mode;
       }
       if (typeof body?.scout_date === "string") scoutDate = body.scout_date;
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
       const result = await runDailyGrowthAgents(scoutDate);
       return NextResponse.json({
         ok: true,
-        message: `Scout: ${result.reddit.added} Reddit + ${result.x.added} X threads. Content: ${result.content.added} drafts (${result.content.platforms.join(", ") || "none today"}).`,
+        message: `Daily social pack ready. Reddit: ${result.reddit.added}, X: ${result.x.added}, content: ${result.content.platforms.join(", ") || "none"}. ${result.images.message}`,
         ...result,
       });
     }
@@ -31,6 +31,12 @@ export async function POST(request: Request) {
         message: `Generated ${content.added} content draft(s): ${content.platforms.join(", ") || "none scheduled today"}.`,
         content,
       });
+    }
+
+    if (mode === "images") {
+      const { runSlideImageGeneration } = await import("@/app/lib/growth/social-scout");
+      const images = await runSlideImageGeneration(scoutDate);
+      return NextResponse.json({ ok: true, ...images });
     }
 
     const scout = await runSocialScout(scoutDate);

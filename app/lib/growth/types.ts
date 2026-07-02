@@ -308,6 +308,10 @@ export type GrowthContentDraft = {
   status: string;
   source_task_title: string | null;
   notes: string | null;
+  on_screen_hook: string | null;
+  hashtags: string | null;
+  audio_suggestion: string | null;
+  generated_images: Array<{ slide: number; label: string; url: string }> | null;
   created_at: string;
   updated_at: string;
 };
