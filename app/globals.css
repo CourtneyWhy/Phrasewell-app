@@ -1793,6 +1793,17 @@ html {
   font-size: 18px;
 }
 
+.growth-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.growth-form-grid-compact {
+  margin-bottom: 12px;
+}
+
 .growth-stat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));

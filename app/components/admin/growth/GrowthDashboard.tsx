@@ -372,6 +372,32 @@ export function GrowthDashboard() {
     loadTable("metrics", setMetrics as (r: never[]) => void);
   }
 
+  async function syncMetricsFromDatabase() {
+    const metricDate = metricForm.metric_date ?? todayIso;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/growth/sync-metrics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metric_date: metricDate }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Sync failed.");
+      setMessage(
+        `Synced ${metricDate}: ${data.waitlist_signups} signups, ${data.feedback_submissions} feedback (${data.thumbs_up_count} up, ${data.thumbs_down_count} down).`,
+      );
+      const refreshed = await growthFetch<{ data: GrowthMetricsDaily[] }>("/api/admin/growth/metrics");
+      setMetrics(refreshed.data ?? []);
+      const synced = refreshed.data?.find((m) => m.metric_date === metricDate);
+      if (synced) setMetricForm(synced);
+      await loadStats();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Sync failed.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function saveRevenue() {
     const net = Number(revenueForm.daily_revenue ?? 0) - Number(revenueForm.refunds ?? 0);
     const sorted = [...revenue].sort((a, b) => b.revenue_date.localeCompare(a.revenue_date));
@@ -1062,6 +1088,30 @@ export function GrowthDashboard() {
           <section>
             <div className="growth-card">
               <h2>Log today&apos;s metrics</h2>
+              <p className="growth-muted">
+                Waitlist signups, feedback, and thumbs auto-fill each night around 11:59 PM Central. Add
+                website visits, beta active, email subs, and social followers manually below.
+              </p>
+              <div className="growth-form-grid growth-form-grid-compact">
+                <label>
+                  Date
+                  <input
+                    type="date"
+                    value={metricForm.metric_date ?? todayIso}
+                    onChange={(e) => setMetricForm((f) => ({ ...f, metric_date: e.target.value }))}
+                  />
+                </label>
+              </div>
+              <div className="growth-card-actions">
+                <button
+                  type="button"
+                  className="growth-btn"
+                  onClick={syncMetricsFromDatabase}
+                  disabled={loading}
+                >
+                  Sync from database
+                </button>
+              </div>
               <div className="growth-form-grid">
                 {(
                   [
@@ -1289,7 +1339,8 @@ export function GrowthDashboard() {
         {tab === "agents" && (
           <section>
             <p className="growth-muted">
-              Copy prompts into Cursor or ChatGPT. Outputs are manual for now — paste results below when you run them.
+              Copy prompts into Cursor or ChatGPT for strategy work. Nightly metrics sync runs automatically
+              and logs under Agent runs below.
             </p>
             <div className="growth-agent-grid">
               {AGENT_PROMPTS.map((agent) => (
