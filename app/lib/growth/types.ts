@@ -274,3 +274,40 @@ export type GrowthContentPipeline = {
   created_at: string;
   updated_at: string;
 };
+
+export type SocialOpportunityStatus = "new" | "used" | "skipped" | "duplicate";
+
+export type GrowthSocialOpportunity = {
+  id: string;
+  scout_date: string;
+  platform: "reddit" | "x";
+  source_name: string | null;
+  thread_url: string;
+  thread_title: string | null;
+  thread_excerpt: string | null;
+  draft_response: string | null;
+  relevance_score: number | null;
+  status: SocialOpportunityStatus;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type GrowthContentDraft = {
+  id: string;
+  draft_date: string;
+  platform: string;
+  content_type: string;
+  behavior_id: string | null;
+  behavior_title: string | null;
+  hook: string | null;
+  body: string | null;
+  cta: string | null;
+  image_prompts: string[] | null;
+  video_script: string | null;
+  status: string;
+  source_task_title: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};

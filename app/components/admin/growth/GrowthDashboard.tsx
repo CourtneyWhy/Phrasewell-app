@@ -39,6 +39,8 @@ import {
 } from "./shared";
 import { EmailMarketingTab } from "./EmailMarketingTab";
 import { ContentEngineTab } from "./ContentEngineTab";
+import { ContentStudioTab } from "./ContentStudioTab";
+import { SocialScoutTab } from "./SocialScoutTab";
 import { TodayTab } from "./TodayTab";
 import { ToolsTab } from "./ToolsTab";
 
@@ -50,6 +52,8 @@ const TABS = [
   { id: "creators", label: "Creators" },
   { id: "content", label: "Content" },
   { id: "content-engine", label: "Content Engine" },
+  { id: "social-scout", label: "Social Scout" },
+  { id: "content-studio", label: "Content Studio" },
   { id: "outreach", label: "Outreach" },
   { id: "feedback", label: "Beta Feedback" },
   { id: "email", label: "Email Marketing" },
@@ -1335,6 +1339,10 @@ export function GrowthDashboard() {
         {tab === "email" && <EmailMarketingTab onMessage={setMessage} />}
 
         {tab === "content-engine" && <ContentEngineTab onMessage={setMessage} />}
+
+        {tab === "social-scout" && <SocialScoutTab todayIso={todayIso} onMessage={setMessage} />}
+
+        {tab === "content-studio" && <ContentStudioTab todayIso={todayIso} onMessage={setMessage} />}
 
         {tab === "agents" && (
           <section>

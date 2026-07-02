@@ -28,20 +28,19 @@ function titleHas(task: TaskLike, ...words: string[]) {
 export function getTaskGuide(task: TaskLike): TaskGuide {
   if (titleHas(task, "reddit") || (task.task_type === "community" && task.platform === "Reddit")) {
     return {
-      tabId: "communities",
-      tabLabel: "Communities",
+      tabId: "social-scout",
+      tabLabel: "Social Scout",
       minutes: 30,
       steps: [
-        "Click Open Communities → — you'll see a list of subreddits (start with r/Fosterparents or r/Adoption).",
-        "Click the ↗ link next to a subreddit to open it in Reddit (use Reddit in browser, not app, first time).",
-        "Sort by New. Find a post where a parent is asking for help — not ads, not politics.",
-        "Write 3–5 sentences of real help from your experience. Be warm, specific, and useful.",
-        "Do NOT mention Phrasewell or post phrasewell.net unless someone directly asks for a tool.",
+        "Click Open Social Scout → — today's Reddit threads are listed with draft replies.",
+        "Open each thread link (↗). Read the full post on Reddit.",
+        "Copy the draft reply, personalize 1–2 sentences, then post.",
+        "Mark the row Used or Skipped when done.",
         "Repeat until you've left 5 helpful comments (~6 min each = 30 min).",
-        "Optional: back on Communities tab, note which subs you used today.",
+        "Do NOT mention Phrasewell unless someone directly asks for a tool.",
       ],
-      doneWhen: "5 helpful Reddit comments posted, no spam links.",
-      tip: "Copy a comment style from Outreach tab → Reddit soft mention — only if it fits naturally.",
+      doneWhen: "5 helpful Reddit comments posted using scout drafts.",
+      tip: "Regenerate Today's Tasks refreshes thread picks and skips duplicates automatically.",
     };
   }
 
@@ -65,36 +64,33 @@ export function getTaskGuide(task: TaskLike): TaskGuide {
 
   if (titleHas(task, "x marketing", "x post", "publish 1 x") || (task.task_type === "content" && task.platform === "X")) {
     return {
-      tabId: "tools",
-      tabLabel: "Tools & Plan",
-      minutes: 10,
+      tabId: "content-studio",
+      tabLabel: "Content Studio",
+      minutes: 15,
       steps: [
-        "Open Tools & Plan tab → copy gotcha pitch. Use it in every X post.",
-        "Content tab → Post templates → use xMarketing or xBuildInPublic (NOT vibe-coding posts).",
-        "Pick one angle: script card screenshot, waitlist milestone, marketing lesson, or beta quote.",
-        "Paste into X OR pull from Buffer queue if you batched on Saturday.",
-        "Mark Posted in Content calendar if you logged a row.",
+        "Open Content Studio → copy today's X post draft.",
+        "Post it on X, then open Social Scout → X section for 3–5 reply opportunities.",
+        "Copy draft comments, personalize, and reply on threads with few responses.",
+        "Mark scout rows Used when done.",
       ],
-      doneWhen: "1 X marketing post live (parenting/distribution angle).",
-      tip: "Heavy X is good for build-in-public + career — focus on marketing for parents, not tech stack.",
+      doneWhen: "1 X post live + 3 helpful replies on other posts.",
+      tip: "Optional: add SERPER_API_KEY in Vercel for direct X thread links instead of search links.",
     };
   }
 
   if (titleHas(task, "faceless reel", "canva slideshow", "tiktok") || (task.task_type === "content" && task.platform === "TikTok")) {
     return {
-      tabId: "tools",
-      tabLabel: "Tools & Plan",
+      tabId: "content-studio",
+      tabLabel: "Content Studio",
       minutes: 35,
       steps: [
-        "Open Tools & Plan → UGC reel recipe (full steps).",
-        "Content Engine → pick 1 behavior → copy Say this + hook.",
-        "Screenshot Moment Card from app or phrasewell.net demo.",
-        "Canva → Video → Slideshow: hook slide → problem → screenshot → gotcha pitch → waitlist CTA. Export MP4.",
-        "CapCut → import → record your voice reading the script → Auto captions → Export.",
-        "Buffer → queue to TikTok + Instagram (same file).",
+        "Open Content Studio → TikTok or Instagram reel draft.",
+        "Copy slide image prompts into Canva (cream background, script cards).",
+        "Copy video script → record voiceover in CapCut with auto captions.",
+        "Export and queue in Buffer for TikTok + Instagram.",
       ],
       doneWhen: "1 reel queued or posted on TikTok + IG.",
-      tip: "Save one Canva template — future reels take ~15 min.",
+      tip: "Same slide deck works for both platforms.",
     };
   }
 

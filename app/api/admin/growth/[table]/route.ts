@@ -17,6 +17,8 @@ const TABLE_MAP: Record<string, string> = {
   "email-library": "growth_email_library",
   "email-analytics": "growth_email_analytics_daily",
   "content-pipeline": "growth_content_pipeline",
+  "social-scout": "growth_social_opportunities",
+  "content-drafts": "growth_content_drafts",
 };
 
 type RouteContext = { params: Promise<{ table: string }> };
@@ -51,7 +53,11 @@ export async function GET(request: Request, context: RouteContext) {
             ? "metric_date"
             : table === "revenue"
               ? "revenue_date"
-              : table === "email-analytics"
+              : table === "social-scout"
+                ? "scout_date"
+                : table === "content-drafts"
+                  ? "draft_date"
+                  : table === "email-analytics"
                 ? "metric_date"
                 : table === "email-campaigns"
                   ? "send_date"
@@ -97,7 +103,7 @@ export async function GET(request: Request, context: RouteContext) {
     query = query.order("category_id", { ascending: true }).order("behavior_title", { ascending: true });
   } else if (dateField && !date && (table === "daily-tasks" || table === "content")) {
     query = query.order(dateField, { ascending: true });
-  } else if (table === "metrics" || table === "revenue" || table === "outreach") {
+  } else if (table === "metrics" || table === "revenue" || table === "outreach" || table === "social-scout" || table === "content-drafts") {
     query = query.order(dateField!, { ascending: false });
   } else {
     query = query.order("created_at", { ascending: false });
