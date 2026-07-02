@@ -1,4 +1,4 @@
-import { POST_TEMPLATES } from "@/app/lib/growth/templates";
+import { customizeSocialReply } from "@/app/lib/growth/reply-customizer";
 
 export const REDDIT_SCOUT_SUBREDDITS = [
   "SpecialNeedsChildren",
@@ -82,17 +82,6 @@ function scorePost(title: string, body: string): number {
   return score;
 }
 
-function buildRedditDraft(title: string, excerpt: string): string {
-  const snippet = excerpt.slice(0, 200).trim();
-  return `That sounds really hard — you're not alone in this.
-
-From what you shared about "${title.slice(0, 100)}${title.length > 100 ? "…" : ""}": one thing that's helped us is keeping it short. Safety first, fewer words, one clear next step.
-
-For example: "I'm here. We're safe. Let's take one breath together."
-
-${snippet ? `Re your situation: ${snippet}${excerpt.length > 200 ? "…" : ""}\n\n` : ""}${POST_TEMPLATES.redditSoft}`.trim();
-}
-
 export async function fetchRedditOpportunities(limit = 8): Promise<RedditScoutPost[]> {
   const candidates: RedditScoutPost[] = [];
   const seen = new Set<string>();
@@ -123,6 +112,12 @@ export async function fetchRedditOpportunities(limit = 8): Promise<RedditScoutPo
         if (relevance < 4) continue;
 
         seen.add(key);
+        const draft = await customizeSocialReply({
+          platform: "reddit",
+          title: p.title,
+          excerpt,
+          url,
+        });
         candidates.push({
           subreddit: sub,
           title: p.title,
@@ -130,7 +125,7 @@ export async function fetchRedditOpportunities(limit = 8): Promise<RedditScoutPo
           url,
           score: relevance,
           numComments: p.num_comments,
-          draft: buildRedditDraft(p.title, excerpt),
+          draft,
         });
       }
     } catch {

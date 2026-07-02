@@ -4,7 +4,7 @@ import { hasOpenAI, generateSlideImages } from "@/app/lib/growth/openai-images";
 import { buildViralTikTokPack } from "@/app/lib/growth/tiktok-viral";
 import { LANDING_DEMO_PHRASES } from "@/app/lib/landing-demo-phrases";
 import { fetchRedditOpportunities, normalizeThreadUrl } from "@/app/lib/growth/reddit-scout";
-import { fetchXOpportunities } from "@/app/lib/growth/x-scout";
+import { fetchXOpportunities, refreshTodayXFromSerper } from "@/app/lib/growth/x-scout";
 
 export type ScoutResult = {
   reddit: { added: number; skipped: number };
@@ -17,12 +17,69 @@ async function loadExistingUrls(db: NonNullable<ReturnType<typeof growthDb>>) {
   return new Set((data ?? []).map((r) => normalizeThreadUrl(r.thread_url)));
 }
 
+async function upsertOpportunity(
+  db: NonNullable<ReturnType<typeof growthDb>>,
+  date: string,
+  row: {
+    platform: "reddit" | "x";
+    source_name: string;
+    thread_url: string;
+    thread_title: string;
+    thread_excerpt: string;
+    draft_response: string;
+    relevance_score: number;
+  },
+  existingUrls: Set<string>,
+): Promise<"added" | "updated" | "skipped"> {
+  const url = normalizeThreadUrl(row.thread_url);
+
+  const { data: sameDay } = await db
+    .from("growth_social_opportunities")
+    .select("id")
+    .eq("scout_date", date)
+    .eq("thread_url", row.thread_url)
+    .maybeSingle();
+
+  if (sameDay?.id) {
+    await db
+      .from("growth_social_opportunities")
+      .update({
+        thread_title: row.thread_title,
+        thread_excerpt: row.thread_excerpt,
+        draft_response: row.draft_response,
+        relevance_score: row.relevance_score,
+        source_name: row.source_name,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", sameDay.id);
+    return "updated";
+  }
+
+  if (existingUrls.has(url)) {
+    return "skipped";
+  }
+
+  const { error } = await db.from("growth_social_opportunities").insert({
+    scout_date: date,
+    status: "new",
+    ...row,
+  });
+  if (error) {
+    if (error.code === "23505") return "skipped";
+    return "skipped";
+  }
+  existingUrls.add(url);
+  return "added";
+}
+
 export async function runSocialScout(scoutDate?: string): Promise<ScoutResult> {
   const db = growthDb();
   if (!db) throw new Error("Database not configured.");
 
   const date = scoutDate ?? todayIso();
   const existingUrls = await loadExistingUrls(db);
+
+  await refreshTodayXFromSerper(db, date);
 
   const [redditPosts, xPosts] = await Promise.all([
     fetchRedditOpportunities(8),
@@ -32,55 +89,43 @@ export async function runSocialScout(scoutDate?: string): Promise<ScoutResult> {
   let redditAdded = 0;
   let redditSkipped = 0;
   for (const post of redditPosts) {
-    const url = normalizeThreadUrl(post.url);
-    if (existingUrls.has(url)) {
-      redditSkipped += 1;
-      continue;
-    }
-    const { error } = await db.from("growth_social_opportunities").insert({
-      scout_date: date,
-      platform: "reddit",
-      source_name: `r/${post.subreddit}`,
-      thread_url: post.url,
-      thread_title: post.title,
-      thread_excerpt: post.excerpt,
-      draft_response: post.draft,
-      relevance_score: post.score,
-      status: "new",
-    });
-    if (error) {
-      if (error.code === "23505") redditSkipped += 1;
-      continue;
-    }
-    existingUrls.add(url);
-    redditAdded += 1;
+    const result = await upsertOpportunity(
+      db,
+      date,
+      {
+        platform: "reddit",
+        source_name: `r/${post.subreddit}`,
+        thread_url: post.url,
+        thread_title: post.title,
+        thread_excerpt: post.excerpt,
+        draft_response: post.draft,
+        relevance_score: post.score,
+      },
+      existingUrls,
+    );
+    if (result === "added" || result === "updated") redditAdded += 1;
+    else redditSkipped += 1;
   }
 
   let xAdded = 0;
   let xSkipped = 0;
   for (const post of xPosts) {
-    const url = normalizeThreadUrl(post.url);
-    if (existingUrls.has(url)) {
-      xSkipped += 1;
-      continue;
-    }
-    const { error } = await db.from("growth_social_opportunities").insert({
-      scout_date: date,
-      platform: "x",
-      source_name: post.sourceName,
-      thread_url: post.url,
-      thread_title: post.title,
-      thread_excerpt: post.excerpt,
-      draft_response: post.draft,
-      relevance_score: post.score,
-      status: "new",
-    });
-    if (error) {
-      if (error.code === "23505") xSkipped += 1;
-      continue;
-    }
-    existingUrls.add(url);
-    xAdded += 1;
+    const result = await upsertOpportunity(
+      db,
+      date,
+      {
+        platform: "x",
+        source_name: post.sourceName,
+        thread_url: post.url,
+        thread_title: post.title,
+        thread_excerpt: post.excerpt,
+        draft_response: post.draft,
+        relevance_score: post.score,
+      },
+      existingUrls,
+    );
+    if (result === "added" || result === "updated") xAdded += 1;
+    else xSkipped += 1;
   }
 
   await db.from("growth_agent_runs").insert({

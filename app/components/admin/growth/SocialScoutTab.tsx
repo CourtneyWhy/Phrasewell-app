@@ -117,8 +117,9 @@ export function SocialScoutTab({ todayIso, onMessage }: SocialScoutTabProps) {
       <div className="growth-card">
         <h2>Social Scout</h2>
         <p className="growth-muted">
-          Reddit: r/SpecialNeedsChildren, r/Mommit, r/AdoptiveParents, r/Parenting. Duplicates are skipped
-          automatically. Regenerate Today&apos;s Tasks also refreshes scouts.
+          Reddit: r/SpecialNeedsChildren, r/Mommit, r/AdoptiveParents, r/Parenting. X uses Serper for
+          direct post links (x.com/user/status/…). Each reply is customized to that post. Re-run scout to
+          refresh drafts. With OPENAI_API_KEY, replies are further personalized.
         </p>
         <div className="growth-form-grid growth-form-grid-compact">
           <label>
@@ -147,8 +148,7 @@ export function SocialScoutTab({ todayIso, onMessage }: SocialScoutTabProps) {
       <div className="growth-card">
         <h3>X opportunities ({xRows.length})</h3>
         <p className="growth-muted" style={{ marginBottom: 12 }}>
-          Add SERPER_API_KEY in Vercel for direct tweet links. Without it, scout provides live search links plus
-          draft reply templates.
+          Direct post links via Serper. Each reply is written for that specific post. Re-run scout to refresh.
         </p>
         <OpportunityList items={xRows} platform="X" />
       </div>
