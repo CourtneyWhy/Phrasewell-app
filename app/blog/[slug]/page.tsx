@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LandingHeader } from "@/app/components/landing/LandingHeader";
 import { LandingFooter } from "@/app/components/landing/LandingFooter";
-import { BetaForm } from "@/app/components/landing/BetaForm";
+import { BlogBetaSection } from "@/app/components/blog/BlogBetaSection";
+import { BlogPostContent } from "@/app/components/blog/BlogPostContent";
+import { BlogPostHero } from "@/app/components/blog/BlogPostHero";
 import { BLOG_POSTS, getBlogPost } from "@/app/lib/blog/posts";
 
 type PageProps = {
@@ -21,15 +22,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${post.title} — Phrasewell`,
     description: post.description,
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      images: [{ url: post.image, alt: post.imageAlt }],
+    },
   };
-}
-
-function formatDate(iso: string) {
-  return new Date(iso + "T12:00:00").toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
@@ -42,53 +40,15 @@ export default async function BlogPostPage({ params }: PageProps) {
       <LandingHeader />
 
       <main>
-        <header className="blog-post-header">
-          <div className="landing-container blog-post-header-inner">
-            <Link href="/blog" className="blog-back-link">
-              ← All parenting scripts
-            </Link>
-            <div className="blog-card-meta">
-              <span>{post.category}</span>
-              <span aria-hidden>·</span>
-              <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
-            </div>
-            <h1 className="blog-post-title font-heading">{post.title}</h1>
-            <p className="blog-post-description">{post.description}</p>
-          </div>
-        </header>
+        <BlogBetaSection id="post-beta-top" compact />
+
+        <BlogPostHero post={post} />
 
         <article className="landing-container blog-post-body">
-          <div className="blog-prose">
-            <p>{post.intro}</p>
-
-            <div className="blog-quote">
-              <p className="blog-quote-label">Say this</p>
-              <blockquote>{post.sayThis}</blockquote>
-            </div>
-
-            <h2 className="font-heading">Do this</h2>
-            <p>{post.doThis}</p>
-
-            <div className="blog-callout">
-              <strong>Helpful note:</strong> {post.helpfulNote}
-            </div>
-
-            <p>
-              Phrasewell gives you scripts like this for dozens of hard moments — tuned by behavior
-              and age. Tap the situation, read the words, take a breath.
-            </p>
-          </div>
+          <BlogPostContent sections={post.sections} />
         </article>
 
-        <section className="blog-post-cta">
-          <div className="landing-container">
-            <div className="landing-card blog-cta-card">
-              <h2 className="font-heading">Want scripts in the moment?</h2>
-              <p>Join the beta — we&apos;re inviting foster, adoptive, and kinship parents in small groups.</p>
-              <BetaForm />
-            </div>
-          </div>
-        </section>
+        <BlogBetaSection id="post-beta-bottom" />
       </main>
 
       <LandingFooter />

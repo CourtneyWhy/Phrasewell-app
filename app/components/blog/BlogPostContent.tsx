@@ -1,4 +1,5 @@
 import type { BlogPostSection } from "@/app/lib/blog/types";
+import { BlogInline } from "@/app/components/blog/BlogInline";
 
 export function BlogPostContent({ sections }: { sections: BlogPostSection[] }) {
   return (
@@ -6,8 +7,19 @@ export function BlogPostContent({ sections }: { sections: BlogPostSection[] }) {
       {sections.map((section, index) => {
         switch (section.type) {
           case "paragraph":
-            return <p key={index}>{section.text}</p>;
+            return (
+              <p key={index}>
+                <BlogInline parts={section.parts} />
+              </p>
+            );
           case "heading":
+            if (section.level === 3) {
+              return (
+                <h3 key={index} className="blog-prose-h3 font-heading">
+                  {section.text}
+                </h3>
+              );
+            }
             return (
               <h2 key={index} className="font-heading">
                 {section.text}
@@ -30,11 +42,34 @@ export function BlogPostContent({ sections }: { sections: BlogPostSection[] }) {
                 ))}
               </ul>
             );
-          case "callout":
+          case "source":
             return (
-              <aside key={index} className="blog-callout">
-                {section.text}
-              </aside>
+              <p key={index} className="blog-source">
+                Source:{" "}
+                <a href={section.href} target="_blank" rel="noopener noreferrer">
+                  {section.label}
+                </a>
+              </p>
+            );
+          case "step":
+            return (
+              <div key={index} className="blog-step">
+                <p className="blog-step-title">
+                  <strong>{section.title}</strong>
+                </p>
+                <p className="blog-step-text">&ldquo;{section.text}&rdquo;</p>
+              </div>
+            );
+          case "faq":
+            return (
+              <div key={index} className="blog-faq-item">
+                <h3 className="blog-prose-h3 font-heading">{section.question}</h3>
+                {section.answer.map((parts, i) => (
+                  <p key={i}>
+                    <BlogInline parts={parts} />
+                  </p>
+                ))}
+              </div>
             );
           default:
             return null;
