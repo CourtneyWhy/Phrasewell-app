@@ -1024,11 +1024,21 @@ html {
 }
 
 .blog-index-lead {
-  margin: 0 auto;
+  margin: 0 auto 24px;
   max-width: 52ch;
   font-size: 18px;
   line-height: 1.6;
   color: var(--muted);
+}
+
+.blog-index-cta {
+  display: inline-flex;
+  min-width: 180px;
+  justify-content: center;
+}
+
+.blog-post-join-wrap {
+  margin-bottom: 8px;
 }
 
 .blog-grid {

@@ -16,7 +16,7 @@ export function LandingFooter() {
           </Link>
           <div className="blog-footer-links">
             <Link href="/blog" className="blog-footer-link">
-              Parenting scripts
+              Blog
             </Link>
             <Link href="/about" className="blog-footer-link">
               About

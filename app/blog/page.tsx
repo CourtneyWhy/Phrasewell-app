@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { LandingHeader } from "@/app/components/landing/LandingHeader";
 import { LandingFooter } from "@/app/components/landing/LandingFooter";
 import { BlogBetaSection } from "@/app/components/blog/BlogBetaSection";
 import { BlogPostCard } from "@/app/components/blog/BlogPostCard";
 import { BLOG_POSTS } from "@/app/lib/blog/posts";
 
+const BLOG_LEAD =
+  "Insights on calm parenting, behavior scripts, and words that help in hard moments.";
+
 export const metadata: Metadata = {
-  title: "Parenting scripts — Phrasewell",
-  description:
-    "Calm words for foster, adoptive, and kinship parents when behavior gets hard — meltdowns, lying, bedtime, and more.",
+  title: "Blog — Phrasewell",
+  description: BLOG_LEAD,
   openGraph: {
-    title: "Parenting scripts — Phrasewell",
-    description:
-      "Calm words for foster, adoptive, and kinship parents when behavior gets hard — meltdowns, lying, bedtime, and more.",
+    title: "Blog — Phrasewell",
+    description: BLOG_LEAD,
   },
 };
 
@@ -22,17 +24,15 @@ export default function BlogIndexPage() {
       <LandingHeader />
 
       <main>
-        <BlogBetaSection id="blog-beta-top" />
-
         <section className="blog-index-hero" aria-labelledby="blog-index-heading">
           <div className="landing-container blog-index-hero-inner">
             <h1 id="blog-index-heading" className="blog-index-title font-heading">
-              Parenting scripts
+              Phrasewell
             </h1>
-            <p className="blog-index-lead">
-              Calm, practical words for hard moments — what to say when theory is in your head but
-              the words won&apos;t come.
-            </p>
+            <p className="blog-index-lead">{BLOG_LEAD}</p>
+            <Link href="#blog-beta" className="landing-btn landing-btn-primary blog-index-cta">
+              Join the beta
+            </Link>
           </div>
         </section>
 
@@ -46,7 +46,7 @@ export default function BlogIndexPage() {
           </div>
         </section>
 
-        <BlogBetaSection id="blog-beta-bottom" compact />
+        <BlogBetaSection id="blog-beta" />
       </main>
 
       <LandingFooter />

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LandingHeader } from "@/app/components/landing/LandingHeader";
 import { LandingFooter } from "@/app/components/landing/LandingFooter";
@@ -40,15 +41,19 @@ export default async function BlogPostPage({ params }: PageProps) {
       <LandingHeader />
 
       <main>
-        <BlogBetaSection id="post-beta-top" compact />
-
         <BlogPostHero post={post} />
+
+        <div className="landing-container blog-post-join-wrap">
+          <Link href="#post-beta" className="landing-btn landing-btn-primary blog-index-cta">
+            Join the beta
+          </Link>
+        </div>
 
         <article className="landing-container blog-post-body">
           <BlogPostContent sections={post.sections} />
         </article>
 
-        <BlogBetaSection id="post-beta-bottom" />
+        <BlogBetaSection id="post-beta" />
       </main>
 
       <LandingFooter />
