@@ -8,6 +8,7 @@ type BlogBetaSectionProps = {
 export function BlogBetaSection({ id = "beta", compact = false }: BlogBetaSectionProps) {
   return (
     <section
+      id={id}
       className={`blog-signup-banner${compact ? " blog-signup-banner-compact" : ""}`}
       aria-labelledby={`${id}-heading`}
     >

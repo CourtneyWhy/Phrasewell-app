@@ -963,7 +963,9 @@ html {
 #how-it-works,
 #what-you-get,
 #moments,
-#beta {
+#beta,
+#blog-beta,
+#post-beta {
   scroll-margin-top: 72px;
 }
 
@@ -1039,6 +1041,7 @@ html {
 
 .blog-post-join-wrap {
   margin-bottom: 8px;
+  text-align: center;
 }
 
 .blog-grid {

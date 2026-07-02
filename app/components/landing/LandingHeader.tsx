@@ -2,11 +2,11 @@ import Link from "next/link";
 import { LandingLogo } from "@/app/components/landing/LandingLogo";
 
 const NAV_LINKS = [
-  { href: "/blog", label: "Blog" },
-  { href: "/about", label: "About" },
   { href: "/#how-it-works", label: "How it works" },
   { href: "/#what-you-get", label: "What you get" },
   { href: "/#moments", label: "Moments" },
+  { href: "/about", label: "About" },
+  { href: "/blog", label: "Blog" },
 ] as const;
 
 export function LandingHeader() {

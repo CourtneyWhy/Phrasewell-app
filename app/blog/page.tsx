@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { LandingHeader } from "@/app/components/landing/LandingHeader";
 import { LandingFooter } from "@/app/components/landing/LandingFooter";
 import { BlogBetaSection } from "@/app/components/blog/BlogBetaSection";
@@ -30,9 +29,9 @@ export default function BlogIndexPage() {
               Phrasewell
             </h1>
             <p className="blog-index-lead">{BLOG_LEAD}</p>
-            <Link href="#blog-beta" className="landing-btn landing-btn-primary blog-index-cta">
+            <a href="#blog-beta" className="landing-btn landing-btn-primary blog-index-cta">
               Join the beta
-            </Link>
+            </a>
           </div>
         </section>
 
